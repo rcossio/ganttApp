@@ -42,6 +42,12 @@ function renderTaskColumn() {
   header.textContent = 'Task';
   col.appendChild(header);
 
+  // add dummy row so everything lines up under the two timeline headers
+  const dummy = document.createElement('div');
+  dummy.className = 'task-cell';
+  dummy.innerHTML = ''; 
+  col.appendChild(dummy);
+
   tasks.forEach((task, idx) => {
     const cell = document.createElement('div');
     cell.className = 'task-cell';
@@ -82,7 +88,42 @@ function attachRowControls() {
   });
 }
 
-// ... popups (unchanged) ...
+// Popups
+function openNamePopup(task, anchor) {
+  closePopups();
+  const popup = document.createElement('div'); popup.className = 'popup';
+  const input = document.createElement('input'); input.value = task.name;
+  input.onkeydown = e => {
+    if (e.key === 'Enter') {
+      task.name = input.value; saveConfig(); closePopups(); render();
+    }
+  };
+  popup.appendChild(input);
+  document.body.appendChild(popup);
+  positionPopup(popup, anchor);
+}
+
+function openColorPopup(task, anchor) {
+  closePopups();
+  const popup = document.createElement('div'); popup.className = 'popup';
+  const palette = document.createElement('div'); palette.className = 'color-palette';
+  ['#e6194b','#3cb44b','#ffe119','#0082c8','#f58231','#911eb4','#46f0f0','#f032e6','#d2f53c','#fabebe','#008080','#e6beff']
+    .forEach(c => {
+      const sw = document.createElement('div'); sw.className = 'color-swatch'; sw.style.background = c;
+      sw.onclick = () => { task.color = c; saveConfig(); closePopups(); render(); };
+      palette.appendChild(sw);
+    });
+  popup.appendChild(palette);
+  document.body.appendChild(popup);
+  positionPopup(popup, anchor);
+}
+
+function closePopups() { document.querySelectorAll('.popup').forEach(p => p.remove()); }
+function positionPopup(popup, anchor) {
+  const r = anchor.getBoundingClientRect();
+  popup.style.left = `${r.right + 5}px`;
+  popup.style.top  = `${r.top}px`;
+}
 
 // Timeline
 function renderTimeline() {
@@ -91,11 +132,11 @@ function renderTimeline() {
   const dw = dayWidth();
   grid.style.minWidth = `${dw * days.length}px`;
 
-  // add a dummy 3rd row for alignment
+  // back to two header rows only
   grid.style.gridTemplateColumns = `repeat(${days.length}, ${dw}px)`;
-  grid.style.gridTemplateRows = `40px 40px 40px repeat(${tasks.length}, 40px)`;
+  grid.style.gridTemplateRows    = `40px 40px repeat(${tasks.length}, 40px)`;
 
-  // Months
+  // Months (row 1)
   const spans = [];
   days.forEach((d,i) => {
     const m = d.toLocaleString('default',{month:'short'});
@@ -112,7 +153,7 @@ function renderTimeline() {
     grid.appendChild(div);
   });
 
-  // Days
+  // Days (row 2)
   days.forEach((d,i) => {
     const div = document.createElement('div');
     div.className = 'day-col';
@@ -122,12 +163,12 @@ function renderTimeline() {
     grid.appendChild(div);
   });
 
-  // Cells (row+4 to skip the 3 header rows)
+  // empty cells for tasks (starting row 3)
   tasks.forEach((task,row) => {
     days.forEach((_,i) => {
       const cell = document.createElement('div');
       cell.style.gridColumn = `${i+1}/${i+2}`;
-      cell.style.gridRow    = `${row+4}/${row+5}`;
+      cell.style.gridRow    = `${row+3}/${row+4}`;
       cell.addEventListener('click',()=> {
         task.start = i; task.end = i; saveConfig(); render();
       });
@@ -151,7 +192,8 @@ function renderBlocks() {
     if (task.start != null && task.end != null) {
       const b = document.createElement('div');
       b.className = 'task-block';
-      b.style.top   = `${40*(row+3)}px`;   // skip 3 header rows
+      // back to skipping exactly 2 header rows:
+      b.style.top   = `${40*(row+2)}px`;
       b.style.left  = `${dw*task.start}px`;
       b.style.width = `${dw*(task.end-task.start+1)}px`;
       b.style.background = task.color;
