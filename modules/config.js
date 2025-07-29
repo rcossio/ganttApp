@@ -1,6 +1,11 @@
 export function loadConfig() {
   const saved = localStorage.getItem('tasksConfig')
-  return saved ? JSON.parse(saved) : []
+  if (!saved || saved === 'undefined') return []
+  try {
+    return JSON.parse(saved)
+  } catch {
+    return []
+  }
 }
 
 export function saveConfig(tasks) {

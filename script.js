@@ -1,6 +1,8 @@
 import {loadConfig, saveConfig, downloadConfig, handleUpload} from './modules/config.js';
 import { openNamePopup, openColorPopup } from './modules/popups.js'
 import { generateDays } from './modules/date.js'
+import { initDrag } from './modules/drag.js';
+import { initResizer } from './modules/resizer.js';
 
 // State
 let firstColWidth = 200;
@@ -157,46 +159,10 @@ function renderBlocks() {
         const h = document.createElement('div');
         h.className = `handle ${pos}`;
         b.appendChild(h);
-        addDrag(h);
       });
       tl.appendChild(b);
     }
   });
-}
-
-// Drag logic
-let dragState = null;
-function addDrag(handle) {
-  handle.onmousedown = e => {
-    e.stopPropagation();
-    const blk  = handle.parentElement;
-    const task = tasks[+blk.dataset.row];
-    dragState = {
-      task,
-      isStart: handle.classList.contains('start')
-    };
-    document.onmousemove = onDrag;
-    document.onmouseup   = () => {
-      document.onmousemove = null;
-      document.onmouseup   = null;
-      dragState = null;
-    };
-  };
-}
-function onDrag(e) {
-  if (!dragState) return;
-  const dw   = dayWidth();
-  const rect = document.getElementById('grid').getBoundingClientRect();
-  let x   = e.clientX - rect.left;
-  let day = Math.round(x / dw);
-  day     = Math.max(0, Math.min(days.length - 1, day));
-  if (dragState.isStart) {
-    dragState.task.start = Math.min(dragState.task.end, day);
-  } else {
-    dragState.task.end   = Math.max(dragState.task.start, day);
-  }
-  saveConfig();
-  renderBlocks();
 }
 
 // Init
@@ -222,24 +188,16 @@ function init() {
     render();
   });
 
-  // Divider drag logic
-  const divider = document.getElementById('divider');
-  let isResizing = false;
-  divider.addEventListener('mousedown', e => {
-    e.preventDefault();
-    isResizing = true;
-  });
-  document.addEventListener('mousemove', e => {
-    if (!isResizing) return;
-    const container = document.getElementById('ganttContainer');
-    const rect = container.getBoundingClientRect();
-    const newWidth = e.clientX - rect.left;
-    firstColWidth = Math.max(100, Math.min(500, newWidth));
-    document.getElementById('taskColumn').style.width = firstColWidth + 'px';
-  });
-  document.addEventListener('mouseup', () => {
-    isResizing = false;
-  });
+  // Initialize drag-and-drop resizing and task block dragging
+  initDrag(tasks, days, dayWidth, () => { saveConfig(tasks); renderBlocks(); });
+  initResizer(
+    document.getElementById('divider'),
+    document.getElementById('ganttContainer'),
+    newWidth => {
+      firstColWidth = newWidth;
+      document.getElementById('taskColumn').style.width = `${newWidth}px`;
+    }
+  );
 }
 
 window.onload = init;
