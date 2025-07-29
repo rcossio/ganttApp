@@ -173,20 +173,13 @@ function renderTimeline(rows, dw) {
       cell.className = 'timeline-cell';
       cell.style.gridColumn = `${i + 1}/${i + 2}`;
       cell.style.gridRow    = `${rIdx + 3}/${rIdx + 4}`;
-      if (row.type === 'task') {
-        cell.addEventListener('click', () => {
-          row.task.start = i;
-          row.task.end   = i;
-          saveConfig(state.groups);
-          render();
-        });
-        cell.addEventListener('contextmenu', e => {
-          e.preventDefault();
-          row.task.start = i;
-          row.task.end   = i;
-          saveConfig(state.groups);
-          render();
-        });
+      if (row.type === 'task' && row.task.start == null) {
+         cell.addEventListener('click', () => {
+           row.task.start = i;
+           row.task.end   = i;
+           saveConfig(state.groups);
+           render();
+         });
       }
       grid.appendChild(cell);
     });

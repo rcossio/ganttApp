@@ -30,8 +30,18 @@ export function downloadConfig(groups) {
 export function handleUpload(file, onLoad) {
   const reader = new FileReader()
   reader.onload = () => {
-    try { onLoad(JSON.parse(reader.result)) }
-    catch { alert('Invalid JSON') }
+    try {
+      const data = JSON.parse(reader.result)
+      // normalize flat Task[] into Group[]
+      const groups = Array.isArray(data) && data.every(item => item.tasks === undefined)
+        ? [{ name: 'Default', collapsed: false, tasks: data }]
+        : data
+      // persist to storage
+      saveConfig(groups)
+      onLoad(groups)
+    } catch {
+      alert('Invalid JSON')
+    }
   }
   reader.readAsText(file)
 }

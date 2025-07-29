@@ -25,11 +25,15 @@ function init() {
   document.getElementById('downloadConfig').onclick   = () => downloadConfig(state.groups);
   const loadInput = document.getElementById('loadConfigInput');
   document.getElementById('uploadConfigBtn').onclick = () => loadInput.click();
-  loadInput.onchange = e => handleUpload(e.target.files[0], newGroups => {
-    state.groups = newGroups;
-    saveConfig(state.groups);
-    render();
-  });
+  loadInput.onchange = e => {
+    handleUpload(e.target.files[0], newGroups => {
+      state.groups = newGroups;
+      saveConfig(state.groups);
+      render();
+      // clear input to allow re-uploading same file
+      e.target.value = '';
+    });
+  };
 
   // Initialize drag-and-drop resizing and task block dragging
   initDrag(
