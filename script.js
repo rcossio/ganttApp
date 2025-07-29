@@ -1,50 +1,13 @@
+import {loadConfig, saveConfig, downloadConfig, handleUpload} from './modules/config.js';
+import { openNamePopup, openColorPopup } from './modules/popups.js'
+import { generateDays } from './modules/date.js'
+
 // State
-let firstColWidth = 200;      // now mutable
+let firstColWidth = 200;
 const baseDayWidth = 40;
 let zoomLevel = 1;
 let tasks = [];
-const days = [];
-
-// Generate weekdays
-function generateDays() {
-  const year = new Date().getFullYear();
-  let d = new Date(year, 0, 1);
-  while (d.getFullYear() === year) {
-    if (d.getDay() >= 1 && d.getDay() <= 5) days.push(new Date(d));
-    d.setDate(d.getDate() + 1);
-  }
-}
-
-// Config load/save
-function loadConfig() {
-  const saved = localStorage.getItem('tasksConfig');
-  if (saved) tasks = JSON.parse(saved);
-}
-function saveConfig() {
-  localStorage.setItem('tasksConfig', JSON.stringify(tasks));
-}
-function downloadConfig() {
-  const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'config.json';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-function handleUpload(file) {
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      tasks = JSON.parse(reader.result);
-      saveConfig();
-      render();
-    } catch {
-      alert('Invalid JSON');
-    }
-  };
-  reader.readAsText(file);
-}
+let days = [];
 
 // Measurements
 function dayWidth() { return baseDayWidth * zoomLevel; }
@@ -92,13 +55,13 @@ function attachRowControls() {
   document.querySelectorAll('.edit-name').forEach(btn => {
     btn.onclick = () => {
       const idx = +btn.dataset.idx;
-      openNamePopup(tasks[idx], btn);
+      openNamePopup(tasks[idx], btn, () => { saveConfig(tasks); render(); });
     };
   });
   document.querySelectorAll('.edit-color').forEach(btn => {
     btn.onclick = () => {
       const idx = +btn.dataset.idx;
-      openColorPopup(tasks[idx], btn);
+      openColorPopup(tasks[idx], btn, () => { saveConfig(tasks); render(); });
     };
   });
   document.querySelectorAll('.delete-task').forEach(btn => {
@@ -111,62 +74,6 @@ function attachRowControls() {
       }
     };
   });
-}
-
-// Popups
-function openNamePopup(task, anchor) {
-  closePopups();
-  const popup = document.createElement('div');
-  popup.className = 'popup';
-  const input = document.createElement('input');
-  input.value = task.name;
-  input.onkeydown = e => {
-    if (e.key === 'Enter') {
-      task.name = input.value;
-      saveConfig();
-      closePopups();
-      render();
-    }
-  };
-  popup.appendChild(input);
-  document.body.appendChild(popup);
-  positionPopup(popup, anchor);
-}
-
-function openColorPopup(task, anchor) {
-  closePopups();
-  const popup = document.createElement('div');
-  popup.className = 'popup';
-  const palette = document.createElement('div');
-  palette.className = 'color-palette';
-  [
-    '#e6194b','#3cb44b','#ffe119','#0082c8',
-    '#f58231','#911eb4','#46f0f0','#f032e6',
-    '#d2f53c','#fabebe','#008080','#e6beff'
-  ].forEach(c => {
-    const sw = document.createElement('div');
-    sw.className = 'color-swatch';
-    sw.style.background = c;
-    sw.onclick = () => {
-      task.color = c;
-      saveConfig();
-      closePopups();
-      render();
-    };
-    palette.appendChild(sw);
-  });
-  popup.appendChild(palette);
-  document.body.appendChild(popup);
-  positionPopup(popup, anchor);
-}
-
-function closePopups() {
-  document.querySelectorAll('.popup').forEach(p => p.remove());
-}
-function positionPopup(popup, anchor) {
-  const r = anchor.getBoundingClientRect();
-  popup.style.left = `${r.right + 5}px`;
-  popup.style.top  = `${r.top}px`;
 }
 
 // Timeline
@@ -294,8 +201,8 @@ function onDrag(e) {
 
 // Init
 function init() {
-  generateDays();
-  loadConfig();
+  days = generateDays();
+  tasks = loadConfig();
   document.getElementById('taskColumn').style.width = firstColWidth + 'px';
   render();
 
@@ -303,13 +210,17 @@ function init() {
   document.getElementById('zoomOut').onclick = () => { zoomLevel /= 1.25; render(); };
   document.getElementById('addTask').onclick = () => {
     tasks.push({ name: 'New Task', start: null, end: null, color: '#0082c8' });
-    saveConfig();
+    saveConfig(tasks);
     render();
   };
-  document.getElementById('saveConfig').onclick   = downloadConfig;
+  document.getElementById('saveConfig').onclick   = () => downloadConfig(tasks);
   const loadInput = document.getElementById('loadConfigInput');
   document.getElementById('loadConfigBtn').onclick = () => loadInput.click();
-  loadInput.onchange = e => handleUpload(e.target.files[0]);
+  loadInput.onchange = e => handleUpload(e.target.files[0], newTasks => {
+    tasks = newTasks;
+    saveConfig(tasks);
+    render();
+  });
 
   // Divider drag logic
   const divider = document.getElementById('divider');
