@@ -10,36 +10,50 @@ body {
   z-index: 100;
 }
 #ganttContainer {
+  display: flex;
   margin-top: 60px;
-  width: 100%;
   height: calc(100vh - 60px);
-  position: relative;
-  overflow-x: auto;
+}
+#taskColumn {
+  width: 200px;
   overflow-y: auto;
+  border-right: 1px solid #ddd;
+}
+#timelineContainer {
+  flex: 1;
+  overflow: auto;
+  position: relative;
 }
 #grid {
   display: grid;
   position: relative;
 }
-.header-col, .task-col, .day-col {
+.header-col {
   box-sizing: border-box;
   border: 1px solid #ddd;
   padding: 4px;
-  background: #fff;
-}
-.header-col {
   background: #f0f0f0;
-  font-weight: bold;
   text-align: center;
+  font-weight: bold;
 }
-.task-col {
+.day-col {
+  box-sizing: border-box;
+  padding: 4px;
+  background: #fff;
+  text-align: center;
+  font-weight: bold;
+  border: none;
+  border-right: 1px solid #ddd;
+}
+.task-cell {
+  box-sizing: border-box;
+  border-bottom: 1px solid #ddd;
+  padding: 8px;
   background: #fafafa;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-.day-col {
-  background: #fff;
 }
 .task-block {
   position: absolute;

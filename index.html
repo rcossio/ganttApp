@@ -13,9 +13,14 @@
     <button id="zoomIn" class="btn btn-secondary">+</button>
     <button id="addTask" class="btn btn-primary">Add Task</button>
     <button id="saveConfig" class="btn btn-success">Save Config</button>
+    <button id="loadConfigBtn" class="btn btn-secondary">Load Config</button>
+    <input type="file" id="loadConfigInput" accept="application/json" style="display:none">
   </div>
   <div id="ganttContainer">
-    <div id="grid"></div>
+    <div id="taskColumn"></div>
+    <div id="timelineContainer">
+      <div id="grid"></div>
+    </div>
   </div>
   <script src="script.js"></script>
 </body>
