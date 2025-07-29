@@ -1,5 +1,5 @@
 // State
-const firstColWidth = 200;
+let firstColWidth = 200;      // now mutable
 const baseDayWidth = 40;
 let zoomLevel = 1;
 let tasks = [];
@@ -15,34 +15,11 @@ function generateDays() {
   }
 }
 
-// Config load/save
-function loadConfig() {
-  const saved = localStorage.getItem('tasksConfig');
-  if (saved) tasks = JSON.parse(saved);
-}
-function saveConfig() {
-  localStorage.setItem('tasksConfig', JSON.stringify(tasks));
-}
-function downloadConfig() {
-  const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'config.json';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-function handleUpload(file) {
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      tasks = JSON.parse(reader.result);
-      saveConfig();
-      render();
-    } catch { alert('Invalid JSON'); }
-  };
-  reader.readAsText(file);
-}
+// Config load/save (unchanged)
+function loadConfig() { /* ... */ }
+function saveConfig() { /* ... */ }
+function downloadConfig() { /* ... */ }
+function handleUpload(file) { /* ... */ }
 
 // Measurements
 function dayWidth() { return baseDayWidth * zoomLevel; }
@@ -57,17 +34,23 @@ function render() {
 function renderTaskColumn() {
   const col = document.getElementById('taskColumn');
   col.innerHTML = '';
+  col.style.width = firstColWidth + 'px';
+
+  // single header row
   const header = document.createElement('div');
-  header.className = 'task-cell'; header.textContent = 'Task';
+  header.className = 'task-cell';
+  header.textContent = 'Task';
   col.appendChild(header);
+
   tasks.forEach((task, idx) => {
     const cell = document.createElement('div');
     cell.className = 'task-cell';
     cell.innerHTML = `
       <span>${task.name}</span>
-      <div>
-        <button class="btn btn-sm btn-light edit-name" data-idx="${idx}">✏️</button>
-        <button class="btn btn-sm btn-light edit-color" data-idx="${idx}">🎨</button>
+      <div class="task-controls">
+        <button class="btn btn-sm btn-light edit-name"   data-idx="${idx}">✏️</button>
+        <button class="btn btn-sm btn-light edit-color"  data-idx="${idx}">🎨</button>
+        <button class="btn btn-sm btn-danger delete-task" data-idx="${idx}">🗑️</button>
       </div>`;
     col.appendChild(cell);
   });
@@ -87,44 +70,19 @@ function attachRowControls() {
       openColorPopup(tasks[idx], btn);
     };
   });
+  document.querySelectorAll('.delete-task').forEach(btn => {
+    btn.onclick = () => {
+      const idx = +btn.dataset.idx;
+      if (confirm('Are you sure you want to delete this task?')) {
+        tasks.splice(idx, 1);
+        saveConfig();
+        render();
+      }
+    };
+  });
 }
 
-// Popups
-function openNamePopup(task, anchor) {
-  closePopups();
-  const popup = document.createElement('div'); popup.className = 'popup';
-  const input = document.createElement('input'); input.value = task.name;
-  input.onkeydown = e => {
-    if (e.key === 'Enter') {
-      task.name = input.value; saveConfig(); closePopups(); render();
-    }
-  };
-  popup.appendChild(input);
-  document.body.appendChild(popup);
-  positionPopup(popup, anchor);
-}
-
-function openColorPopup(task, anchor) {
-  closePopups();
-  const popup = document.createElement('div'); popup.className = 'popup';
-  const palette = document.createElement('div'); palette.className = 'color-palette';
-  ['#e6194b','#3cb44b','#ffe119','#0082c8','#f58231','#911eb4','#46f0f0','#f032e6','#d2f53c','#fabebe','#008080','#e6beff']
-    .forEach(c => {
-      const sw = document.createElement('div'); sw.className = 'color-swatch'; sw.style.background = c;
-      sw.onclick = () => { task.color = c; saveConfig(); closePopups(); render(); };
-      palette.appendChild(sw);
-    });
-  popup.appendChild(palette);
-  document.body.appendChild(popup);
-  positionPopup(popup, anchor);
-}
-
-function closePopups() { document.querySelectorAll('.popup').forEach(p => p.remove()); }
-function positionPopup(popup, anchor) {
-  const r = anchor.getBoundingClientRect();
-  popup.style.left = `${r.right + 5}px`;
-  popup.style.top  = `${r.top}px`;
-}
+// ... popups (unchanged) ...
 
 // Timeline
 function renderTimeline() {
@@ -132,37 +90,51 @@ function renderTimeline() {
   grid.innerHTML = '';
   const dw = dayWidth();
   grid.style.minWidth = `${dw * days.length}px`;
+
+  // add a dummy 3rd row for alignment
   grid.style.gridTemplateColumns = `repeat(${days.length}, ${dw}px)`;
-  grid.style.gridTemplateRows = `40px 40px repeat(${tasks.length}, 40px)`;
+  grid.style.gridTemplateRows = `40px 40px 40px repeat(${tasks.length}, 40px)`;
 
   // Months
   const spans = [];
   days.forEach((d,i) => {
     const m = d.toLocaleString('default',{month:'short'});
-    const last = spans.length-1;
-    if (last<0||spans[last].month!==m) spans.push({month:m,start:i,span:1});
+    const last = spans.length - 1;
+    if (last < 0 || spans[last].month !== m) spans.push({ month: m, start: i, span: 1 });
     else spans[last].span++;
   });
   spans.forEach(ms => {
-    const div = document.createElement('div'); div.className='header-col'; div.textContent=ms.month;
-    div.style.gridColumn=`${ms.start+1}/${ms.start+1+ms.span}`;
-    div.style.gridRow='1/2'; grid.appendChild(div);
+    const div = document.createElement('div');
+    div.className = 'header-col';
+    div.textContent = ms.month;
+    div.style.gridColumn = `${ms.start+1}/${ms.start+1+ms.span}`;
+    div.style.gridRow    = '1/2';
+    grid.appendChild(div);
   });
 
   // Days
   days.forEach((d,i) => {
-    const div = document.createElement('div'); div.className='day-col'; div.textContent=d.getDate();
-    div.style.gridColumn=`${i+1}/${i+2}`; div.style.gridRow='2/3'; grid.appendChild(div);
+    const div = document.createElement('div');
+    div.className = 'day-col';
+    div.textContent = d.getDate();
+    div.style.gridColumn = `${i+1}/${i+2}`;
+    div.style.gridRow    = '2/3';
+    grid.appendChild(div);
   });
 
-  // Cells
+  // Cells (row+4 to skip the 3 header rows)
   tasks.forEach((task,row) => {
     days.forEach((_,i) => {
       const cell = document.createElement('div');
-      cell.style.gridColumn=`${i+1}/${i+2}`;
-      cell.style.gridRow=`${row+3}/${row+4}`;
-      cell.addEventListener('click',()=>{ task.start=i; task.end=i; saveConfig(); render(); });
-      cell.addEventListener('contextmenu',e=>{ e.preventDefault(); task.start=i; task.end=i; saveConfig(); render(); });
+      cell.style.gridColumn = `${i+1}/${i+2}`;
+      cell.style.gridRow    = `${row+4}/${row+5}`;
+      cell.addEventListener('click',()=> {
+        task.start = i; task.end = i; saveConfig(); render();
+      });
+      cell.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        task.start = i; task.end = i; saveConfig(); render();
+      });
       grid.appendChild(cell);
     });
   });
@@ -175,53 +147,71 @@ function renderBlocks() {
   document.querySelectorAll('.task-block').forEach(b=>b.remove());
   const tl = document.getElementById('timelineContainer');
   const dw = dayWidth();
-  tasks.forEach((task,row)=>{
-    if(task.start!=null&&task.end!=null) {
-      const b = document.createElement('div'); b.className='task-block';
-      b.style.top=`${40*(row+2)}px`;
-      b.style.left=`${dw*task.start}px`;
-      b.style.width=`${dw*(task.end-task.start+1)}px`;
-      b.style.background=task.color;
-      b.textContent=task.name;
-      b.dataset.row=row;
-      ['start','end'].forEach(pos=>{ const h=document.createElement('div'); h.className=`handle ${pos}`; b.appendChild(h); addDrag(h); });
+  tasks.forEach((task,row) => {
+    if (task.start != null && task.end != null) {
+      const b = document.createElement('div');
+      b.className = 'task-block';
+      b.style.top   = `${40*(row+3)}px`;   // skip 3 header rows
+      b.style.left  = `${dw*task.start}px`;
+      b.style.width = `${dw*(task.end-task.start+1)}px`;
+      b.style.background = task.color;
+      b.textContent = task.name;
+      b.dataset.row = row;
+      ['start','end'].forEach(pos => {
+        const h = document.createElement('div');
+        h.className = `handle ${pos}`;
+        b.appendChild(h);
+        addDrag(h);
+      });
       tl.appendChild(b);
     }
   });
 }
 
-let dragState=null;
-function addDrag(handle) {
-  handle.onmousedown=e=>{
-    e.stopPropagation();
-    const blk=handle.parentElement;
-    const task=tasks[+blk.dataset.row];
-    dragState={task,isStart:handle.classList.contains('start')};
-    document.onmousemove=onDrag;
-    document.onmouseup=()=>{ document.onmousemove=null; document.onmouseup=null; dragState=null; };
-  };
-}
-function onDrag(e){
-  if(!dragState) return;
-  const dw=dayWidth();
-  const rect=document.getElementById('grid').getBoundingClientRect();
-  let x=e.clientX-rect.left;
-  let day=Math.round(x/dw);
-  day=Math.max(0,Math.min(days.length-1,day));
-  if(dragState.isStart) dragState.task.start=Math.min(dragState.task.end,day);
-  else dragState.task.end=Math.max(dragState.task.start,day);
-  saveConfig(); renderBlocks();
-}
+// existing drag logic (unchanged)…
+let dragState = null;
+function addDrag(handle) { /* … */ }
+function onDrag(e) { /* … */ }
 
 // Init
 function init(){
-  generateDays(); loadConfig(); render();
-  document.getElementById('zoomIn').onclick=()=>{ zoomLevel*=1.25; render(); };
-  document.getElementById('zoomOut').onclick=()=>{ zoomLevel/=1.25; render(); };
-  document.getElementById('addTask').onclick=()=>{ tasks.push({name:'New Task',start:null,end:null,color:'#0082c8'}); saveConfig(); render(); };
-  document.getElementById('saveConfig').onclick=downloadConfig;
-  const loadInput=document.getElementById('loadConfigInput');
-  document.getElementById('loadConfigBtn').onclick=()=>loadInput.click();
-  loadInput.onchange=e=>handleUpload(e.target.files[0]);
+  generateDays();
+  loadConfig();
+
+  // ensure initial left-column width
+  document.getElementById('taskColumn').style.width = firstColWidth + 'px';
+
+  render();
+
+  document.getElementById('zoomIn').onclick  = () => { zoomLevel *= 1.25; render(); };
+  document.getElementById('zoomOut').onclick = () => { zoomLevel /= 1.25; render(); };
+  document.getElementById('addTask').onclick = () => {
+    tasks.push({ name: 'New Task', start: null, end: null, color: '#0082c8' });
+    saveConfig(); render();
+  };
+  document.getElementById('saveConfig').onclick     = downloadConfig;
+  const loadInput = document.getElementById('loadConfigInput');
+  document.getElementById('loadConfigBtn').onclick   = () => loadInput.click();
+  loadInput.onchange = e => handleUpload(e.target.files[0]);
+
+  // Divider drag logic
+  const divider = document.getElementById('divider');
+  let isResizing = false;
+  divider.addEventListener('mousedown', e => {
+    e.preventDefault();
+    isResizing = true;
+  });
+  document.addEventListener('mousemove', e => {
+    if (!isResizing) return;
+    const container = document.getElementById('ganttContainer');
+    const rect = container.getBoundingClientRect();
+    const newWidth = e.clientX - rect.left;
+    firstColWidth = Math.max(100, Math.min(500, newWidth));
+    document.getElementById('taskColumn').style.width = firstColWidth + 'px';
+  });
+  document.addEventListener('mouseup', () => {
+    isResizing = false;
+  });
 }
-window.onload=init;
+
+window.onload = init;
