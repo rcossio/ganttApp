@@ -2,18 +2,24 @@ export function loadConfig() {
   const saved = localStorage.getItem('tasksConfig')
   if (!saved || saved === 'undefined') return []
   try {
-    return JSON.parse(saved)
+    const data = JSON.parse(saved)
+    // if stored as flat Task[], wrap in default group
+    if (Array.isArray(data) && data.every(item => item.tasks === undefined)) {
+      return [{ name: 'Default', collapsed: false, tasks: data }]
+    }
+    // else assume Group[]
+    return data
   } catch {
     return []
   }
 }
 
-export function saveConfig(tasks) {
-  localStorage.setItem('tasksConfig', JSON.stringify(tasks))
+export function saveConfig(groups) {
+  localStorage.setItem('tasksConfig', JSON.stringify(groups))
 }
 
-export function downloadConfig(tasks) {
-  const blob = new Blob([JSON.stringify(tasks, null,2)], {type:'application/json'})
+export function downloadConfig(groups) {
+  const blob = new Blob([JSON.stringify(groups, null,2)], {type:'application/json'})
   const a = Object.assign(document.createElement('a'), {
     href: URL.createObjectURL(blob), download:'config.json'
   })

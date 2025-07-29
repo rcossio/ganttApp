@@ -1,5 +1,5 @@
 // Initialize drag behavior for task-block handles
-export function initDrag(tasks, days, dayWidthFn, onUpdate) {
+export function initDrag(getRows, days, dayWidthFn, onUpdate) {
   let dragState = null;
 
   document.addEventListener('mousedown', e => {
@@ -7,7 +7,9 @@ export function initDrag(tasks, days, dayWidthFn, onUpdate) {
     e.stopPropagation();
     const handle = e.target;
     const blk = handle.parentElement;
-    const task = tasks[+blk.dataset.row];
+    const rows = getRows();
+    const row = rows[+blk.dataset.row];
+    const task = row.task;
     const isStart = handle.classList.contains('start');
     dragState = { task, isStart };
     document.onmousemove = moveHandler;
