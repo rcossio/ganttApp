@@ -1,25 +1,27 @@
 export function loadConfig() {
   const saved = localStorage.getItem('tasksConfig')
-  if (!saved || saved === 'undefined') return []
+  if (!saved || saved === 'undefined') return { groups: [], zoomLevel: 1 }
   try {
-    const data = JSON.parse(saved)
-    // if stored as flat Task[], wrap in default group
-    if (Array.isArray(data) && data.every(item => item.tasks === undefined)) {
-      return [{ name: 'Default', collapsed: false, tasks: data }]
+    const config = JSON.parse(saved)
+    if (Array.isArray(config)) {
+      // legacy format: only groups array
+      return { groups: config, zoomLevel: 1 }
     }
-    // else assume Group[]
-    return data
+    return {
+      groups: config.groups || [],
+      zoomLevel: config.zoomLevel ?? 1
+    }
   } catch {
-    return []
+    return { groups: [], zoomLevel: 1 }
   }
 }
 
-export function saveConfig(groups) {
-  localStorage.setItem('tasksConfig', JSON.stringify(groups))
+export function saveConfig(config) {
+  localStorage.setItem('tasksConfig', JSON.stringify(config))
 }
 
-export function downloadConfig(groups) {
-  const blob = new Blob([JSON.stringify(groups, null,2)], {type:'application/json'})
+export function downloadConfig(config) {
+  const blob = new Blob([JSON.stringify(config, null,2)], {type:'application/json'})
   const a = Object.assign(document.createElement('a'), {
     href: URL.createObjectURL(blob), download:'config.json'
   })
@@ -31,14 +33,9 @@ export function handleUpload(file, onLoad) {
   const reader = new FileReader()
   reader.onload = () => {
     try {
-      const data = JSON.parse(reader.result)
-      // normalize flat Task[] into Group[]
-      const groups = Array.isArray(data) && data.every(item => item.tasks === undefined)
-        ? [{ name: 'Default', collapsed: false, tasks: data }]
-        : data
-      // persist to storage
-      saveConfig(groups)
-      onLoad(groups)
+      const config = JSON.parse(reader.result)
+      saveConfig(config)
+      onLoad(config)
     } catch {
       alert('Invalid JSON')
     }
