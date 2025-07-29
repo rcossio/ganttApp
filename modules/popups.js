@@ -7,12 +7,14 @@ export const COLORS = [
 export function closePopups() {
   document.querySelectorAll('.popup').forEach(p=>p.remove())
 }
+
 export function positionPopup(popup, anchor) {
   const r = anchor.getBoundingClientRect()
   Object.assign(popup.style, {
     left:`${r.right+5}px`, top:`${r.top}px`
   })
 }
+
 export function openNamePopup(task, anchor, onSave) {
   closePopups()
   const popup = document.createElement('div'); popup.className='popup'
@@ -25,6 +27,7 @@ export function openNamePopup(task, anchor, onSave) {
   popup.append(input); document.body.append(popup)
   positionPopup(popup,anchor); input.focus()
 }
+
 export function openColorPopup(task, anchor, onSave) {
   closePopups()
   const popup = document.createElement('div'); popup.className='popup'

@@ -61,7 +61,18 @@ body {
 .task-cell {
   box-sizing: border-box;
   border-bottom: 1px solid #ddd;
-  padding: 8px;
+  padding: 0 8px;
+  background: #fafafa;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.group-cell {
+  box-sizing: border-box;
+  border-bottom: 1px solid #ddd;
+  padding: 0 8px;
   background: #fafafa;
   height: 40px;
   display: flex;
@@ -122,4 +133,13 @@ body {
   margin: 2px;
   cursor: pointer;
   border: 1px solid #ccc;
+}
+
+/* timeline cells should match task-cell height/padding/border */
+.timeline-cell {
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0;
+  background: transparent;
+  border-right: 1px solid #ddd;
 }
