@@ -44,16 +44,19 @@ export function flattenRows() {
 // container: parent element for width calculations
 export function initResizer(divider, container) {
   let isResizing = false;
-  divider.onmousedown = e => { e.preventDefault(); isResizing = true; };
-  divider.ondragstart = e => e.preventDefault();
-  document.onmousemove = e => {
+  const moveHandler = e => {
     if (!isResizing) return;
     const rect = container.getBoundingClientRect();
     const newWidth = e.clientX - rect.left;
     state.firstColWidth = newWidth;
     document.getElementById('taskColumn').style.width = `${newWidth}px`;
   };
-  document.onmouseup = () => { isResizing = false; };
+  const upHandler = () => { isResizing = false; };
+
+  divider.addEventListener('mousedown', e => { e.preventDefault(); isResizing = true; });
+  divider.addEventListener('dragstart', e => e.preventDefault());
+  document.addEventListener('mousemove', moveHandler);
+  document.addEventListener('mouseup', upHandler);
 }
 
 // Initialize drag behavior for task-block handles
@@ -70,8 +73,9 @@ export function initDrag(getRows, days, dayWidthFn, onUpdate) {
     const task = row.task;
     const isStart = handle.classList.contains('start');
     dragState = { task, isStart };
-    document.onmousemove = moveHandler;
-    document.onmouseup = upHandler;
+    // add document-level listeners instead of setting onmousemove/onmouseup
+    document.addEventListener('mousemove', moveHandler);
+    document.addEventListener('mouseup', upHandler);
   });
 
   function moveHandler(e) {
@@ -90,8 +94,9 @@ export function initDrag(getRows, days, dayWidthFn, onUpdate) {
   }
 
   function upHandler() {
-    document.onmousemove = null;
-    document.onmouseup = null;
+    // remove the added listeners
+    document.removeEventListener('mousemove', moveHandler);
+    document.removeEventListener('mouseup', upHandler);
     dragState = null;
   }
 }
