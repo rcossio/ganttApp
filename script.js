@@ -38,6 +38,26 @@ function init() {
     document.getElementById('divider'),
     document.getElementById('ganttContainer')
   );
+
+  // synchronize vertical scrolling between task column and timeline
+  const taskCol = document.getElementById('taskColumn');
+  const timeline = document.getElementById('timelineContainer');
+  let isSyncingTask = false;
+  let isSyncingTimeline = false;
+  taskCol.addEventListener('scroll', () => {
+    if (!isSyncingTask) {
+      isSyncingTimeline = true;
+      timeline.scrollTop = taskCol.scrollTop;
+    }
+    isSyncingTask = false;
+  });
+  timeline.addEventListener('scroll', () => {
+    if (!isSyncingTimeline) {
+      isSyncingTask = true;
+      taskCol.scrollTop = timeline.scrollTop;
+    }
+    isSyncingTimeline = false;
+  });
 }
 
 window.onload = init;

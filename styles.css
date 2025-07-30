@@ -36,6 +36,8 @@ body {
   flex: 1;
   overflow: auto;
   position: relative;
+  overflow-y: auto;
+  height: calc(100vh - 60px);
 }
 #grid {
   display: grid;
