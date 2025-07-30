@@ -1,7 +1,8 @@
 import state from './state.js';
 import { flattenRows, dayWidth } from './utils.js';
 import { saveConfig } from './config.js';
-import { openNamePopup, openColorPopup } from './popups.js'
+import { createCollapseButton, createGroupRenameButton, createGroupAddTaskButton, createGroupDeleteButton } from './groupButtons.js';
+import { createEditNameButton, createEditColorButton, createDeleteTaskButton } from './taskButtons.js';
 
 // Main render
 export function render() {
@@ -54,114 +55,18 @@ function renderTaskColumn(rows) {
       }
     } else {
       const t = row.task;
-      cell.innerHTML = `
-        <span>${t.name}</span>
-        <div class="task-controls">
-          <button class="btn btn-sm btn-light edit-name" data-idx="${idx}">✏️</button>
-          <button class="btn btn-sm btn-light edit-color" data-idx="${idx}">🎨</button>
-          <button class="btn btn-sm btn-danger delete-task" data-idx="${idx}">🗑️</button>
-        </div>
-      `;
+      cell.innerHTML = '';
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = t.name;
+      cell.appendChild(nameSpan);
+      const controlsDiv = document.createElement('div');
+      controlsDiv.className = 'task-controls';
+      controlsDiv.appendChild(createEditNameButton(rows, idx));
+      controlsDiv.appendChild(createEditColorButton(rows, idx));
+      controlsDiv.appendChild(createDeleteTaskButton(rows, idx));
+      cell.appendChild(controlsDiv);
     }
     col.appendChild(cell);
-  });
-  attachRowControls(rows);
-}
-
-// Group controls
-function createCollapseButton(rows,idx) {
-  const btn = document.createElement('button');
-  btn.className = 'collapse-toggle';
-  btn.dataset.idx = idx;
-  const row = rows[idx];
-  btn.textContent = row.group.collapsed ? '▶' : '▼';
-  btn.onclick = () => {
-    const idx = +btn.dataset.idx;
-    const row = rows[idx];
-    const group = row.group;
-    group.collapsed = !group.collapsed;
-    saveConfig(state.groups);
-    render();
-  };
-  return btn;
-}
-
-function createGroupRenameButton(rows,idx) {
-  const btn = document.createElement('button');
-  btn.className = 'btn btn-sm btn-light group-rename';
-  btn.dataset.idx = idx;
-  btn.textContent = '✏️';
-  btn.onclick = () => {
-    const idx = +btn.dataset.idx;
-    const row = rows[idx];
-    openNamePopup(row.group, btn, () => { saveConfig(state.groups); render(); });
-  };
-  return btn;
-}
-
-function createGroupAddTaskButton(rows, idx) {
-  const btn = document.createElement('button');
-  btn.className = 'btn btn-sm btn-light group-add-task';
-  btn.dataset.idx = idx;
-  btn.textContent = '＋';
-  btn.onclick = () => {
-    const idx = +btn.dataset.idx;
-    const row = rows[idx];
-    const task = { name: 'New Task', start: null, end: null, color: '#0082c8' };
-    row.group.tasks.push(task);
-    saveConfig(state.groups);
-    render();
-  };
-  return btn;
-}
-
-function createGroupDeleteButton(rows,idx) {
-  const btn = document.createElement('button');
-  btn.className = 'btn btn-sm btn-danger group-delete';
-  btn.dataset.idx = idx;
-  btn.textContent = '🗑️';
-  btn.onclick = () => {
-    const idx = +btn.dataset.idx;
-    const row = rows[idx];
-    if (confirm(`Are you sure you want to delete the Group "${row.group.name}"?`)) {
-      state.groups.splice(row.gi, 1);
-      saveConfig(state.groups);
-      render();
-    }
-  };
-  return btn;
-}
-
-
-function attachRowControls(rows) {
-  document.querySelectorAll('.edit-name').forEach(btn => {
-    btn.onclick = () => {
-      const idx = +btn.dataset.idx;
-      const row = rows[idx];
-      openNamePopup(row.task, btn, () => { saveConfig(state.groups); render(); });
-    };
-  });
-  document.querySelectorAll('.edit-color').forEach(btn => {
-    btn.onclick = () => {
-      const idx = +btn.dataset.idx;
-      const row = rows[idx];
-      openColorPopup(row.task, btn, () => { saveConfig(state.groups); render(); });
-    };
-  });
-  document.querySelectorAll('.delete-task').forEach(btn => {
-    btn.onclick = () => {
-      const idx = +btn.dataset.idx;
-      if (confirm(`Are you sure you want to delete the task "${rows[idx].task.name}"?`)) {
-        const row = rows[idx];
-        if (row.type === 'task') {
-          state.groups[row.gi].tasks.splice(row.ti, 1);
-        } else {
-          state.groups.splice(row.gi, 1);
-        }
-        saveConfig(state.groups);
-        render();
-      }
-    };
   });
 }
 

@@ -2,6 +2,7 @@ import { loadConfig, saveConfig, downloadConfig, handleUpload } from './modules/
 import { initResizer, scrollToToday, flattenRows, dayWidth, initDrag, generateDays  } from './modules/utils.js';
 import { render, renderBlocks} from './modules/render.js';
 import state from './modules/state.js';
+import { createZoomInButton, createZoomOutButton, createDownloadConfigButton, createUploadConfigButton } from './modules/controlButtons.js';
 
 // Init
 function init() {
@@ -15,23 +16,13 @@ function init() {
   render();
   scrollToToday();
 
-  //Control Buttons listeners
-  document.getElementById('zoomIn').onclick  = () => { state.zoomLevel *= 1.25; saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel }); render(); scrollToToday(); };
-  document.getElementById('zoomOut').onclick = () => { state.zoomLevel /= 1.25; saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel }); render(); scrollToToday(); };
-  document.getElementById('downloadConfig').onclick   = () => downloadConfig({ groups: state.groups, zoomLevel: state.zoomLevel });
-  const loadInput = document.getElementById('loadConfigInput');
-  document.getElementById('uploadConfigBtn').onclick = () => loadInput.click();
-  loadInput.onchange = e => {
-    handleUpload(e.target.files[0], newConfig => {
-      state.groups = newConfig.groups;
-      state.zoomLevel = newConfig.zoomLevel;
-      saveConfig(newConfig);
-      render();
-      scrollToToday();
-      // clear input to allow re-uploading same file
-      e.target.value = '';
-    });
-  };
+  // Control Buttons
+  const controls = document.getElementById('controls');
+  controls.innerHTML = '';
+  controls.appendChild(createZoomOutButton());
+  controls.appendChild(createZoomInButton());
+  controls.appendChild(createDownloadConfigButton());
+  controls.appendChild(createUploadConfigButton());
 
   // Initialize drag-and-drop resizing and task block dragging
   initDrag(
