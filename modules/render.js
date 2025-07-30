@@ -27,20 +27,31 @@ function renderTaskColumn(rows) {
   //Add dummy row so everything lines up under the two timeline headers
   const dummy = document.createElement('div');
   dummy.className = 'task-cell';
-  dummy.innerHTML = '';
+  // add Add Group button in dummy cell
+  dummy.innerHTML = `<button id="addGroupDummy" class="btn btn-primary btn-sm">+ Add Group</button>`;
   col.appendChild(dummy);
+  // attach click handler for dummy Add Group
+  document.getElementById('addGroupDummy').onclick = () => {
+    state.groups.push({ name: 'New Group', collapsed: false, tasks: [] });
+    saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel });
+    render();
+  };
 
   rows.forEach((row, idx) => {
     const cell = document.createElement('div');
     cell.className = row.type === 'group' ? 'group-cell' : 'task-cell';
     if (row.type === 'group') {
-      cell.innerHTML = `
-        <button class="collapse-toggle" data-idx="${idx}">${row.group.collapsed ? '▶' : '▼'}</button>
-        <span>${row.group.name}</span>
-        <button class="btn btn-sm btn-light group-rename" data-idx="${idx}">✏️</button>
-        <button class="btn btn-sm btn-light group-add-task" data-idx="${idx}">＋</button>
-        ${row.group.tasks.length === 0 ? `<button class="btn btn-sm btn-danger group-delete" data-idx="${idx}">🗑️</button>` : ''}
-      `;
+      // replace inline HTML for groups with factory functions
+      cell.innerHTML = '';
+      cell.appendChild(createCollapseButton(rows, idx));
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = row.group.name;
+      cell.appendChild(nameSpan);
+      cell.appendChild(createGroupRenameButton(rows, idx));
+      cell.appendChild(createGroupAddTaskButton(rows, idx));
+      if (row.group.tasks.length === 0) {
+        cell.appendChild(createGroupDeleteButton(rows, idx));
+      }
     } else {
       const t = row.task;
       cell.innerHTML = `
@@ -54,50 +65,73 @@ function renderTaskColumn(rows) {
     }
     col.appendChild(cell);
   });
-  attachGroupControls(rows);
   attachRowControls(rows);
 }
 
-function attachGroupControls(rows) {
-  document.querySelectorAll('.collapse-toggle').forEach(btn => {
-    btn.onclick = () => {
-      const idx = +btn.dataset.idx;
-      const row = rows[idx];
-      const group = row.group;
-      group.collapsed = !group.collapsed;
-      saveConfig(state.groups);
-      render();
-    };
-  });
-  document.querySelectorAll('.group-rename').forEach(btn => {
-    btn.onclick = () => {
-      const idx = +btn.dataset.idx;
-      const row = rows[idx];
-      openNamePopup(row.group, btn, () => { saveConfig(state.groups); render(); });
-    };
-  });
-  document.querySelectorAll('.group-add-task').forEach(btn => {
-    btn.onclick = () => {
-      const idx = +btn.dataset.idx;
-      const row = rows[idx];
-      const task = { name: 'New Task', start: null, end: null, color: '#0082c8' };
-      row.group.tasks.push(task);
-      saveConfig(state.groups);
-      render();
-    };
-  });
-  document.querySelectorAll('.group-delete').forEach(btn => {
-    btn.onclick = () => {
-      const idx = +btn.dataset.idx;
-      const row = rows[idx];
-      if (confirm(`Are you sure you want to delete the Group "${row.group.name}"?`)) {
-        state.groups.splice(row.gi, 1);
-        saveConfig(state.groups);
-        render();
-      }
-    };
-  });
+// Group controls
+function createCollapseButton(rows,idx) {
+  const btn = document.createElement('button');
+  btn.className = 'collapse-toggle';
+  btn.dataset.idx = idx;
+  const row = rows[idx];
+  btn.textContent = row.group.collapsed ? '▶' : '▼';
+  btn.onclick = () => {
+    const idx = +btn.dataset.idx;
+    const row = rows[idx];
+    const group = row.group;
+    group.collapsed = !group.collapsed;
+    saveConfig(state.groups);
+    render();
+  };
+  return btn;
 }
+
+function createGroupRenameButton(rows,idx) {
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-sm btn-light group-rename';
+  btn.dataset.idx = idx;
+  btn.textContent = '✏️';
+  btn.onclick = () => {
+    const idx = +btn.dataset.idx;
+    const row = rows[idx];
+    openNamePopup(row.group, btn, () => { saveConfig(state.groups); render(); });
+  };
+  return btn;
+}
+
+function createGroupAddTaskButton(rows, idx) {
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-sm btn-light group-add-task';
+  btn.dataset.idx = idx;
+  btn.textContent = '＋';
+  btn.onclick = () => {
+    const idx = +btn.dataset.idx;
+    const row = rows[idx];
+    const task = { name: 'New Task', start: null, end: null, color: '#0082c8' };
+    row.group.tasks.push(task);
+    saveConfig(state.groups);
+    render();
+  };
+  return btn;
+}
+
+function createGroupDeleteButton(rows,idx) {
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-sm btn-danger group-delete';
+  btn.dataset.idx = idx;
+  btn.textContent = '🗑️';
+  btn.onclick = () => {
+    const idx = +btn.dataset.idx;
+    const row = rows[idx];
+    if (confirm(`Are you sure you want to delete the Group "${row.group.name}"?`)) {
+      state.groups.splice(row.gi, 1);
+      saveConfig(state.groups);
+      render();
+    }
+  };
+  return btn;
+}
+
 
 function attachRowControls(rows) {
   document.querySelectorAll('.edit-name').forEach(btn => {

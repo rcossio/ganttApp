@@ -10,7 +10,6 @@ function init() {
   const loadedConfig = loadConfig();
   state.groups = loadedConfig.groups;
   state.zoomLevel = loadedConfig.zoomLevel;
-  //document.getElementById('taskColumn').style.width = state.firstColWidth + 'px';
 
   //Initial render
   render();
@@ -19,11 +18,6 @@ function init() {
   //Control Buttons listeners
   document.getElementById('zoomIn').onclick  = () => { state.zoomLevel *= 1.25; saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel }); render(); scrollToToday(); };
   document.getElementById('zoomOut').onclick = () => { state.zoomLevel /= 1.25; saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel }); render(); scrollToToday(); };
-  document.getElementById('addGroup').onclick = () => {
-    state.groups.push({ name: 'New Group', collapsed: false, tasks: [] });
-    saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel });
-    render();
-  };
   document.getElementById('downloadConfig').onclick   = () => downloadConfig({ groups: state.groups, zoomLevel: state.zoomLevel });
   const loadInput = document.getElementById('loadConfigInput');
   document.getElementById('uploadConfigBtn').onclick = () => loadInput.click();
