@@ -1,5 +1,5 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Source Sans Pro", "Segoe UI", sans-serif;
   margin: 0;
   padding: 0;
 }
@@ -57,8 +57,14 @@ body {
   background: #fff;
   text-align: center;
   font-weight: bold;
+  font-size: 0.9em;
   border: none;
   border-right: 1px solid #ddd;
+}
+
+/* Thicker left border for Mondays */
+.day-col.monday {
+  border-left: 2px solid #aaa;
 }
 
 .task-cell {
@@ -104,6 +110,7 @@ body {
   align-items: center;
   justify-content: center;
   user-select: none;
+  font-weight: 500;
 }
 .handle {
   position: absolute;
@@ -145,4 +152,9 @@ body {
   padding: 0;
   background: transparent;
   border-right: 1px solid #ddd;
+}
+
+/* Thicker left border for Mondays */
+.timeline-cell.monday {
+  border-left: 2px solid #aaa;
 }

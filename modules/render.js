@@ -21,7 +21,7 @@ function renderTaskColumn(rows) {
   // Single header row
   const header = document.createElement('div');
   header.className = 'task-cell';
-  header.textContent = 'Task';
+  header.textContent = 'Group/Task';
   col.appendChild(header);
 
   //Add dummy row so everything lines up under the two timeline headers
@@ -90,7 +90,7 @@ function attachGroupControls(rows) {
     btn.onclick = () => {
       const idx = +btn.dataset.idx;
       const row = rows[idx];
-      if (confirm('Are you sure you want to delete this group?')) {
+      if (confirm(`Are you sure you want to delete the Group "${row.group.name}"?`)) {
         state.groups.splice(row.gi, 1);
         saveConfig(state.groups);
         render();
@@ -117,7 +117,7 @@ function attachRowControls(rows) {
   document.querySelectorAll('.delete-task').forEach(btn => {
     btn.onclick = () => {
       const idx = +btn.dataset.idx;
-      if (confirm('Are you sure you want to delete this task?')) {
+      if (confirm(`Are you sure you want to delete the task "${rows[idx].task.name}"?`)) {
         const row = rows[idx];
         if (row.type === 'task') {
           state.groups[row.gi].tasks.splice(row.ti, 1);
@@ -159,7 +159,7 @@ function renderTimeline(rows, dw) {
   // Days (row 2)
   state.days.forEach((d, i) => {
     const div = document.createElement('div');
-    div.className = 'day-col';
+    div.className = 'day-col' + (d.getDay() === 1 ? ' monday' : '');
     div.textContent = d.getDate();
     div.style.gridColumn = `${i + 1}/${i + 2}`;
     div.style.gridRow    = '2/3';
@@ -171,6 +171,7 @@ function renderTimeline(rows, dw) {
     state.days.forEach((_, i) => {
       const cell = document.createElement('div');
       cell.className = 'timeline-cell';
+      if (state.days[i].getDay() === 1) cell.classList.add('monday');
       cell.style.gridColumn = `${i + 1}/${i + 2}`;
       cell.style.gridRow    = `${rIdx + 3}/${rIdx + 4}`;
       if (row.type === 'task' && row.task.start == null) {
