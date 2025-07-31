@@ -34,7 +34,7 @@ function renderTaskColumn(rows) {
   // attach click handler for dummy Add Group
   document.getElementById('addGroupDummy').onclick = () => {
     state.groups.push({ name: 'New Group', collapsed: false, tasks: [] });
-    saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel });
+    saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel, team: state.team });
     render();
   };
 

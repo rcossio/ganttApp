@@ -1,8 +1,8 @@
-
 import { saveConfig, downloadConfig, handleUpload } from './config.js';
 import { render } from './render.js';
 import state from './state.js';
 import { scrollToToday } from './utils.js';
+import { openTeamPopup } from './popups.js';
 
 export function createZoomInButton() {
   //    <button id="zoomIn"  class="btn btn-secondary">+</button>
@@ -12,7 +12,7 @@ export function createZoomInButton() {
   zoomInButton.textContent = '+';
   zoomInButton.onclick = () => {
     state.zoomLevel *= 1.25;
-    saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel });
+    saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel, team: state.team });
     render();
     scrollToToday();
   };
@@ -27,7 +27,7 @@ export function createZoomOutButton() {
   zoomOutButton.textContent = '-';
   zoomOutButton.onclick = () => {
     state.zoomLevel /= 1.25;
-    saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel });
+    saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel, team: state.team });
     render();
     scrollToToday();
   };
@@ -62,6 +62,7 @@ export function createUploadConfigButton() {
     handleUpload(e.target.files[0], newConfig => {
       state.groups = newConfig.groups;
       state.zoomLevel = newConfig.zoomLevel;
+      state.team = newConfig.team;
       saveConfig(newConfig);
       render();
       scrollToToday();
@@ -72,4 +73,16 @@ export function createUploadConfigButton() {
   fragment.appendChild(uploadConfigButton);
   fragment.appendChild(loadInput);
   return fragment;
+}
+
+/**
+ * Creates "Manage Team" button that opens a popup listing team members.
+ */
+export function createManageTeamButton() {
+  const btn = document.createElement('button');
+  btn.id = 'manageTeam';
+  btn.className = 'btn btn-secondary';
+  btn.textContent = 'Manage Team';
+  btn.onclick = () => openTeamPopup(btn);
+  return btn;
 }

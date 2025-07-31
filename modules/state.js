@@ -4,6 +4,7 @@ const state = {
   baseDayWidth: 40,
   zoomLevel: 1,
   days: [],
+  team: []
 };
 
 export default state;
