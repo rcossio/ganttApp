@@ -3,6 +3,7 @@ import { flattenRows, dayWidth } from './utils.js';
 import { saveConfig } from './config.js';
 import { createCollapseButton, createGroupRenameButton, createGroupAddTaskButton, createGroupDeleteButton } from './groupButtons.js';
 import { createEditNameButton, createEditColorButton, createDeleteTaskButton } from './taskButtons.js';
+import { closePopups, positionPopup } from './popups.js';
 
 // Main render
 export function render() {
@@ -163,6 +164,31 @@ export function renderBlocks(rows) {
           b.appendChild(h);
         });
         tl.appendChild(b);
+        // Add context menu for clearing dates
+        b.addEventListener('contextmenu', e => {
+          e.preventDefault();
+          closePopups();
+          const popup = document.createElement('div'); popup.className = 'popup';
+          const btn = document.createElement('div'); btn.className = 'popup-btn'; btn.textContent = 'Clear dates';
+          btn.onclick = () => {
+            task.start = null;
+            task.end = null;
+            saveConfig(state.groups);
+            render();
+            closePopups();
+            document.removeEventListener('mousedown', onClickOutside);
+          };
+          popup.appendChild(btn);
+          document.body.appendChild(popup);
+          positionPopup(popup, b);
+          function onClickOutside(ev) {
+            if (!popup.contains(ev.target)) {
+              document.removeEventListener('mousedown', onClickOutside);
+              closePopups();
+            }
+          }
+          document.addEventListener('mousedown', onClickOutside);
+        });
       }
     }
   });
