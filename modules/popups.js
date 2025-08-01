@@ -90,12 +90,59 @@ export function openTeamPopup(anchor) {
   // Function to render list and optional form
   function renderList() {
     content.innerHTML = '';
-    state.team.forEach(member => {
+    state.team.forEach((member, idx) => {
       const row = document.createElement('button');
       row.className = 'btn btn-sm popup-btn';
       row.textContent = `👤 ${member.initials} - ${member.email}`;
       row.style.cursor = 'default';
-      row.disabled = true;
+      row.disabled = false;
+      // Add right-click to remove member
+      row.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        // Remove only other context menus, not the main team popup
+        document.querySelectorAll('.task-context-menu').forEach(p => {
+          if (p !== popup) p.remove();
+        });
+        // Remove member context menu
+        const menu = document.createElement('div');
+        menu.className = 'task-context-menu';
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-sm btn-danger';
+        btn.textContent = 'Remove member';
+        btn.onclick = () => {
+          const emailToRemove = member.email;
+          const removedIdx = state.team.findIndex(m => m.email === emailToRemove);
+          if (removedIdx !== -1) {
+            state.team.splice(removedIdx, 1);
+            saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel, team: state.team });
+            menu.remove();
+            renderList();
+          }
+        };
+        btn.onmousedown = () => {
+          const emailToRemove = member.email;
+          const removedIdx = state.team.findIndex(m => m.email === emailToRemove);
+          if (removedIdx !== -1) {
+            state.team.splice(removedIdx, 1);
+            saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel, team: state.team });
+            menu.remove();
+            renderList();
+          }
+        };
+        menu.appendChild(btn);
+        document.body.appendChild(menu);
+        positionPopup(menu, row);
+        // Only close this menu on outside click
+        function onClickOutside(ev) {
+          if (!menu.contains(ev.target)) {
+            document.removeEventListener('mousedown', onClickOutside);
+            menu.remove();
+          }
+        }
+        setTimeout(() => {
+          document.addEventListener('mousedown', onClickOutside);
+        }, 0);
+      });
       content.append(row);
     });
   }
