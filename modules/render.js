@@ -2,7 +2,7 @@ import state from './state.js';
 import { flattenRows, dayWidth } from './utils.js';
 import { saveConfig } from './config.js';
 import { createCollapseButton, createGroupRenameButton, createGroupAddTaskButton, createGroupDeleteButton } from './groupButtons.js';
-import { createEditNameButton, createEditColorButton, createDeleteTaskButton } from './taskButtons.js';
+import { createEditNameButton, createEditColorButton, createDeleteTaskButton, createTaskContextMenu } from './taskButtons.js';
 import { closePopups, positionPopup } from './popups.js';
 
 // Main render
@@ -60,12 +60,28 @@ function renderTaskColumn(rows) {
       const nameSpan = document.createElement('span');
       nameSpan.textContent = t.name;
       cell.appendChild(nameSpan);
-      const controlsDiv = document.createElement('div');
-      controlsDiv.className = 'task-controls';
-      controlsDiv.appendChild(createEditNameButton(rows, idx));
-      controlsDiv.appendChild(createEditColorButton(rows, idx));
-      controlsDiv.appendChild(createDeleteTaskButton(rows, idx));
-      cell.appendChild(controlsDiv);
+      // Context menu logic
+      cell.oncontextmenu = (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.task-context-menu').forEach(m => m.remove());
+        const menu = createTaskContextMenu(rows, idx);
+        document.body.appendChild(menu);
+        // Position menu next to the task cell
+        const rect = cell.getBoundingClientRect();
+        menu.style.left = rect.right + 8 + 'px';
+        menu.style.top = rect.top + window.scrollY + 'px';
+        // Close menu on outside click (except when popups are open)
+        function onClickOutside(ev) {
+          if (!menu.contains(ev.target) && !document.querySelector('.popup')) {
+            menu.remove();
+            document.removeEventListener('mousedown', onClickOutside);
+          }
+        }
+        setTimeout(() => {
+          document.addEventListener('mousedown', onClickOutside);
+        }, 0);
+      };
+      // Remove old controlsDiv
     }
     col.appendChild(cell);
   });
@@ -168,23 +184,28 @@ export function renderBlocks(rows) {
         b.addEventListener('contextmenu', e => {
           e.preventDefault();
           closePopups();
-          const popup = document.createElement('div'); popup.className = 'popup';
-          const btn = document.createElement('div'); btn.className = 'popup-btn'; btn.textContent = 'Clear dates';
+          const menu = document.createElement('div');
+          menu.className = 'task-context-menu';
+          const btn = document.createElement('button');
+          btn.className = 'btn btn-sm';
+          btn.textContent = '🧹 Clear dates';
           btn.onclick = () => {
             task.start = null;
             task.end = null;
             saveConfig(state.groups);
             render();
             closePopups();
+            menu.remove();
             document.removeEventListener('mousedown', onClickOutside);
           };
-          popup.appendChild(btn);
-          document.body.appendChild(popup);
-          positionPopup(popup, b);
+          menu.appendChild(btn);
+          document.body.appendChild(menu);
+          positionPopup(menu, b);
           function onClickOutside(ev) {
-            if (!popup.contains(ev.target)) {
+            if (!menu.contains(ev.target)) {
               document.removeEventListener('mousedown', onClickOutside);
               closePopups();
+              menu.remove();
             }
           }
           document.addEventListener('mousedown', onClickOutside);

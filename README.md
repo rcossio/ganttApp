@@ -11,7 +11,6 @@ I made this because Click*p charges 7 USD if you see your tasks in a Gantt chart
 - Feat: Add an assigned person per task.
 - Feat: Add a delete button for the team when doing a right click, with a popup sign
 - Feat: dragging groups and task to reorder them 
-- Feat: Right click to the block of task to remove the dates
 - Feat: the vertical scroll should not move the header
 - Feat: dark theme icon
 

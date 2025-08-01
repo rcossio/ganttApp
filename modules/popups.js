@@ -75,7 +75,7 @@ export function openColorPopup(task, anchor, onSave) {
  */
 export function openTeamPopup(anchor) {
   closePopups();
-  const popup = document.createElement('div'); popup.className = 'popup';
+  const popup = document.createElement('div'); popup.className = 'task-context-menu';
   // Header with title and add button
   const headerRow = document.createElement('div'); headerRow.style.display = 'flex'; headerRow.style.justifyContent = 'space-between'; headerRow.style.alignItems = 'center';
   const header = document.createElement('strong'); header.textContent = 'Team Members';
@@ -83,14 +83,19 @@ export function openTeamPopup(anchor) {
   headerRow.append(header, addBtn);
   popup.append(headerRow);
   // Container for list and optional form
-  const content = document.createElement('div'); content.style.marginTop = '8px';
+  const content = document.createElement('div');
+  content.style.display = 'flex';
+  content.style.flexDirection = 'column';
   popup.append(content);
   // Function to render list and optional form
   function renderList() {
     content.innerHTML = '';
     state.team.forEach(member => {
-      const row = document.createElement('div');
-      row.textContent = `${member.initials} - ${member.email}`;
+      const row = document.createElement('button');
+      row.className = 'btn btn-sm popup-btn';
+      row.textContent = `👤 ${member.initials} - ${member.email}`;
+      row.style.cursor = 'default';
+      row.disabled = true;
       content.append(row);
     });
   }
@@ -111,7 +116,7 @@ export function openTeamPopup(anchor) {
       if (initials && email) {
         state.team.push({ initials, email });
         saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel, team: state.team });
-        openTeamPopup(anchor);
+        renderList();
       }
     };
   };
