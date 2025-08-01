@@ -64,18 +64,41 @@ export function initDrag(getRows, days, dayWidthFn, onUpdate) {
   let dragState = null;
 
   document.addEventListener('mousedown', e => {
-    if (!e.target.classList.contains('handle')) return;
-    e.stopPropagation();
-    const handle = e.target;
-    const blk = handle.parentElement;
-    const rows = getRows();
-    const row = rows[+blk.dataset.row];
-    const task = row.task;
-    const isStart = handle.classList.contains('start');
-    dragState = { task, isStart };
-    // add document-level listeners instead of setting onmousemove/onmouseup
-    document.addEventListener('mousemove', moveHandler);
-    document.addEventListener('mouseup', upHandler);
+    // start handle drag
+    if (e.target.classList.contains('handle')) {
+      e.stopPropagation();
+      const handle = e.target;
+      const blk = handle.parentElement;
+      const rows = getRows();
+      const row = rows[+blk.dataset.row];
+      const task = row.task;
+      const isStart = handle.classList.contains('start');
+      dragState = { type: 'handle', task, isStart };
+      // attach move/up listeners
+      document.addEventListener('mousemove', moveHandler);
+      document.addEventListener('mouseup', upHandler);
+    }
+    // start block drag (move entire task)
+    else if (e.target.classList.contains('task-block')) {
+      e.stopPropagation();
+      const blk = e.target;
+      const rows = getRows();
+      const row = rows[+blk.dataset.row];
+      const task = row.task;
+      const dw = dayWidthFn();
+      const rect = document.getElementById('grid').getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const initialMouseDay = Math.round(x / dw);
+      dragState = {
+        type: 'block',
+        task,
+        initialMouseDay,
+        initialStart: task.start,
+        initialEnd: task.end
+      };
+      document.addEventListener('mousemove', moveHandler);
+      document.addEventListener('mouseup', upHandler);
+    }
   });
 
   function moveHandler(e) {
@@ -85,10 +108,20 @@ export function initDrag(getRows, days, dayWidthFn, onUpdate) {
     let x = e.clientX - rect.left;
     let day = Math.round(x / dw);
     day = Math.max(0, Math.min(days.length - 1, day));
-    if (dragState.isStart) {
-      dragState.task.start = Math.min(dragState.task.end, day);
-    } else {
-      dragState.task.end = Math.max(dragState.task.start, day);
+    if (dragState.type === 'handle') {
+      if (dragState.isStart) {
+        dragState.task.start = Math.min(dragState.task.end, day);
+      } else {
+        dragState.task.end = Math.max(dragState.task.start, day);
+      }
+    } else if (dragState.type === 'block') {
+      const delta = day - dragState.initialMouseDay;
+      const length = dragState.initialEnd - dragState.initialStart;
+      let newStart = dragState.initialStart + delta;
+      // clamp within bounds
+      newStart = Math.max(0, Math.min(days.length - 1 - length, newStart));
+      dragState.task.start = newStart;
+      dragState.task.end = newStart + length;
     }
     onUpdate();
   }

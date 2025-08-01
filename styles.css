@@ -64,6 +64,12 @@ body {
   border-right: 1px solid #ddd;
 }
 
+/* highlight today's date cell */
+.day-col.today {
+  background: #007bff;
+  color: #fff;
+}
+
 /* Thicker left border for Mondays */
 .day-col.monday {
   border-left: 2px solid #aaa;

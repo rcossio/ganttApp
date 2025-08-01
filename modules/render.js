@@ -96,9 +96,14 @@ function renderTimeline(rows, dw) {
   });
 
   // Days (row 2)
+  const todayDate = new Date().toDateString();
   state.days.forEach((d, i) => {
     const div = document.createElement('div');
-    div.className = 'day-col' + (d.getDay() === 1 ? ' monday' : '');
+    // highlight today
+    const isToday = d.toDateString() === todayDate;
+    div.className = 'day-col' +
+      (d.getDay() === 1 ? ' monday' : '') +
+      (isToday ? ' today' : '');
     div.textContent = d.getDate();
     div.style.gridColumn = `${i + 1}/${i + 2}`;
     div.style.gridRow    = '2/3';
