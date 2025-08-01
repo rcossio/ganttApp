@@ -9,7 +9,7 @@ export const COLORS = [
 
 //'#d4dade',
 export function closePopups() {
-  document.querySelectorAll('.popup').forEach(p=>p.remove())
+  document.querySelectorAll('.popup, .task-context-menu').forEach(p=>p.remove())
 }
 
 export function positionPopup(popup, anchor) {
