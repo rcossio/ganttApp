@@ -12,7 +12,7 @@ export function createZoomInButton() {
   zoomInButton.textContent = '+';
   zoomInButton.onclick = () => {
     state.zoomLevel *= 1.25;
-    saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel, team: state.team });
+    saveConfig();
     render();
     scrollToToday();
   };
@@ -27,7 +27,7 @@ export function createZoomOutButton() {
   zoomOutButton.textContent = '-';
   zoomOutButton.onclick = () => {
     state.zoomLevel /= 1.25;
-    saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel, team: state.team });
+    saveConfig();
     render();
     scrollToToday();
   };
@@ -40,7 +40,7 @@ export function createDownloadConfigButton() {
   downloadConfigButton.className = 'btn btn-success';
   downloadConfigButton.textContent = 'Download Config';
   downloadConfigButton.onclick = () => {
-    downloadConfig({ groups: state.groups, zoomLevel: state.zoomLevel });
+    downloadConfig();
   };
   return downloadConfigButton;
 }
@@ -63,7 +63,7 @@ export function createUploadConfigButton() {
       state.groups = newConfig.groups;
       state.zoomLevel = newConfig.zoomLevel;
       state.team = newConfig.team;
-      saveConfig(newConfig);
+      saveConfig();
       render();
       scrollToToday();
       e.target.value = '';

@@ -3,8 +3,8 @@ import state from './state.js';
 /**
  * Persists configuration (including team) to localStorage
  */
-export function saveConfig(config) {
-  localStorage.setItem('tasksConfig', JSON.stringify(config));
+export function saveConfig() {
+  localStorage.setItem('tasksConfig', JSON.stringify(state));
 }
 
 export function loadConfig() {
@@ -22,9 +22,8 @@ export function loadConfig() {
   }
 }
 
-export function downloadConfig(config) {
-  // include team before export
-  const exportConfig = { ...config, team: state.team };
+export function downloadConfig() {
+  const exportConfig = { ...state }; //just in case we strip properties later
   const blob = new Blob([JSON.stringify(exportConfig, null,2)], {type:'application/json'})
   const a = Object.assign(document.createElement('a'), {
     href: URL.createObjectURL(blob), download:'config.json'
@@ -38,7 +37,8 @@ export function handleUpload(file, onLoad) {
   reader.onload = () => {
     try {
       const config = JSON.parse(reader.result)
-      saveConfig(config)
+      Object.assign(state, config);
+      saveConfig();
       onLoad(config)
     } catch {
       alert('Invalid JSON')

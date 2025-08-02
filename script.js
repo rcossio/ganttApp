@@ -32,7 +32,7 @@ function init() {
     state.days,   // 2) the array of date slots
     dayWidth,     // 3) a fn that tells you the pixel‐width of one day
     () => {       // 4) onUpdate
-      saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel, team: state.team });
+      saveConfig();
       renderBlocks(flattenRows());
     }
   );

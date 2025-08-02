@@ -134,4 +134,16 @@ export function initDrag(getRows, days, dayWidthFn, onUpdate) {
   }
 }
 
-
+// Utility: Attach outside click handler and auto-remove
+export function attachClickOutside(element, callback, extraCondition) {
+  function handler(ev) {
+    const condition = typeof extraCondition === 'function' ? extraCondition() : true;
+    if (!element.contains(ev.target) && condition) {
+      callback();
+      document.removeEventListener('mousedown', handler);
+    }
+  }
+  setTimeout(() => {
+    document.addEventListener('mousedown', handler);
+  }, 0);
+}

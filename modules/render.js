@@ -4,6 +4,8 @@ import { saveConfig } from './config.js';
 import { createCollapseButton, createGroupRenameButton, createGroupAddTaskButton, createGroupDeleteButton } from './groupButtons.js';
 import { createEditNameButton, createEditColorButton, createDeleteTaskButton, createTaskContextMenu } from './taskButtons.js';
 import { closePopups, positionPopup } from './popups.js';
+import { createClearButton } from './specialButtons.js';
+import { attachClickOutside } from './utils.js';
 
 // Main render
 export function render() {
@@ -35,7 +37,7 @@ function renderTaskColumn(rows) {
   // attach click handler for dummy Add Group
   document.getElementById('addGroupDummy').onclick = () => {
     state.groups.push({ name: 'New Group', collapsed: false, tasks: [] });
-    saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel, team: state.team });
+    saveConfig();
     render();
   };
 
@@ -70,16 +72,7 @@ function renderTaskColumn(rows) {
         const rect = cell.getBoundingClientRect();
         menu.style.left = rect.right + 8 + 'px';
         menu.style.top = rect.top + window.scrollY + 'px';
-        // Close menu on outside click (except when popups are open)
-        function onClickOutside(ev) {
-          if (!menu.contains(ev.target) && !document.querySelector('.popup')) {
-            menu.remove();
-            document.removeEventListener('mousedown', onClickOutside);
-          }
-        }
-        setTimeout(() => {
-          document.addEventListener('mousedown', onClickOutside);
-        }, 0);
+        attachClickOutside(menu, () => menu.remove(), () => !document.querySelector('.popup'));
       };
       // Remove old controlsDiv
     }
@@ -139,7 +132,7 @@ function renderTimeline(rows, dw) {
          cell.addEventListener('click', () => {
            row.task.start = i;
            row.task.end   = i;
-           saveConfig(state.groups);
+           saveConfig();
            render();
          });
       }
@@ -186,29 +179,11 @@ export function renderBlocks(rows) {
           closePopups();
           const menu = document.createElement('div');
           menu.className = 'task-context-menu';
-          const btn = document.createElement('button');
-          btn.className = 'btn btn-sm';
-          btn.textContent = '🧹 Clear dates';
-          btn.onclick = () => {
-            task.start = null;
-            task.end = null;
-            saveConfig(state.groups);
-            render();
-            closePopups();
-            menu.remove();
-            document.removeEventListener('mousedown', onClickOutside);
-          };
+          const btn = createClearButton(task);
           menu.appendChild(btn);
           document.body.appendChild(menu);
           positionPopup(menu, b);
-          function onClickOutside(ev) {
-            if (!menu.contains(ev.target)) {
-              document.removeEventListener('mousedown', onClickOutside);
-              closePopups();
-              menu.remove();
-            }
-          }
-          document.addEventListener('mousedown', onClickOutside);
+          attachClickOutside(menu, () => { closePopups(); menu.remove(); });
         });
       }
     }

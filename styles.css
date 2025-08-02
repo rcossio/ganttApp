@@ -223,3 +223,17 @@ body {
 .task-context-menu > div {
   padding: 6px 16px;
 }
+
+.team-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.team-content {
+  display: flex;
+  flex-direction: column;
+}
+.team-form {
+  display: flex;
+  flex-direction: column;
+}

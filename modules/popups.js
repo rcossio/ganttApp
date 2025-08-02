@@ -1,5 +1,6 @@
 import state from './state.js';
 import { saveConfig } from './config.js';
+import { createRemoveMemberButton } from './specialButtons.js';
 
 export const COLORS = [
 '#8b94a7', '#3344b4', '#883ab0', '#e62788',
@@ -7,7 +8,6 @@ export const COLORS = [
 '#77d257', '#48c488', '#2a9d8f', '#264653',
 ]
 
-//'#d4dade',
 export function closePopups() {
   document.querySelectorAll('.popup, .task-context-menu').forEach(p=>p.remove())
 }
@@ -77,15 +77,15 @@ export function openTeamPopup(anchor) {
   closePopups();
   const popup = document.createElement('div'); popup.className = 'task-context-menu';
   // Header with title and add button
-  const headerRow = document.createElement('div'); headerRow.style.display = 'flex'; headerRow.style.justifyContent = 'space-between'; headerRow.style.alignItems = 'center';
+  const headerRow = document.createElement('div');
+  headerRow.className = 'team-header-row';
   const header = document.createElement('strong'); header.textContent = 'Team Members';
   const addBtn = document.createElement('button'); addBtn.textContent = '+'; addBtn.className = 'btn btn-sm btn-primary';
   headerRow.append(header, addBtn);
   popup.append(headerRow);
   // Container for list and optional form
   const content = document.createElement('div');
-  content.style.display = 'flex';
-  content.style.flexDirection = 'column';
+  content.className = 'team-content';
   popup.append(content);
   // Function to render list and optional form
   function renderList() {
@@ -106,29 +106,7 @@ export function openTeamPopup(anchor) {
         // Remove member context menu
         const menu = document.createElement('div');
         menu.className = 'task-context-menu';
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-sm btn-danger';
-        btn.textContent = 'Remove member';
-        btn.onclick = () => {
-          const emailToRemove = member.email;
-          const removedIdx = state.team.findIndex(m => m.email === emailToRemove);
-          if (removedIdx !== -1) {
-            state.team.splice(removedIdx, 1);
-            saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel, team: state.team });
-            menu.remove();
-            renderList();
-          }
-        };
-        btn.onmousedown = () => {
-          const emailToRemove = member.email;
-          const removedIdx = state.team.findIndex(m => m.email === emailToRemove);
-          if (removedIdx !== -1) {
-            state.team.splice(removedIdx, 1);
-            saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel, team: state.team });
-            menu.remove();
-            renderList();
-          }
-        };
+        const btn = createRemoveMemberButton(member, renderList);
         menu.appendChild(btn);
         document.body.appendChild(menu);
         positionPopup(menu, row);
@@ -151,7 +129,7 @@ export function openTeamPopup(anchor) {
   addBtn.onclick = () => {
     content.innerHTML = '';
     const form = document.createElement('div');
-    form.style.display = 'flex'; form.style.flexDirection = 'column';
+    form.className = 'team-form';
     const initInput = Object.assign(document.createElement('input'), { placeholder: 'Initials' });
     const emailInput = Object.assign(document.createElement('input'), { placeholder: 'Email', type: 'email' });
     const saveBtn = document.createElement('button'); saveBtn.textContent = 'Save'; saveBtn.className = 'btn btn-sm btn-success';
@@ -162,7 +140,7 @@ export function openTeamPopup(anchor) {
       const email = emailInput.value.trim();
       if (initials && email) {
         state.team.push({ initials, email });
-        saveConfig({ groups: state.groups, zoomLevel: state.zoomLevel, team: state.team });
+        saveConfig();
         renderList();
       }
     };
@@ -178,3 +156,4 @@ export function openTeamPopup(anchor) {
   }
   document.addEventListener('mousedown', onClickOutside);
 }
+

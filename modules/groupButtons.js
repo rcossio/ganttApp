@@ -15,7 +15,7 @@ export function createCollapseButton(rows,idx) {
     const row = rows[idx];
     const group = row.group;
     group.collapsed = !group.collapsed;
-    saveConfig(state.groups);
+    saveConfig();
     render();
   };
   return btn;
@@ -29,7 +29,7 @@ export function createGroupRenameButton(rows,idx) {
   btn.onclick = () => {
     const idx = +btn.dataset.idx;
     const row = rows[idx];
-    openNamePopup(row.group, btn, () => { saveConfig(state.groups); render(); });
+    openNamePopup(row.group, btn, () => { saveConfig(); render(); });
   };
   return btn;
 }
@@ -44,7 +44,7 @@ export function createGroupAddTaskButton(rows, idx) {
     const row = rows[idx];
     const task = { name: 'New Task', start: null, end: null, color: '#0082c8' };
     row.group.tasks.push(task);
-    saveConfig(state.groups);
+    saveConfig();
     render();
   };
   return btn;
@@ -60,7 +60,7 @@ export function createGroupDeleteButton(rows,idx) {
     const row = rows[idx];
     if (confirm(`Are you sure you want to delete the Group "${row.group.name}"?`)) {
       state.groups.splice(row.gi, 1);
-      saveConfig(state.groups);
+      saveConfig();
       render();
     }
   };
