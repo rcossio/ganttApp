@@ -7,6 +7,8 @@ import TaskBlock from './TaskBlock.js';
 import TaskContextMenu from './TaskContextMenu.js';
 import TimelineCell from './TimelineCell.js';
 
+const ZOOM_DAY_TEXT_THRESHOLD = 0.45;
+
 // Main render
 export async function render() {
   const rows = flattenRows();
@@ -116,9 +118,23 @@ function renderTimeline(rows) {
       (d.getDay() === 1 ? ' monday' : '') +
       (isToday ? ' today' : '') +
       (isWeekend ? ' weekend' : '');
-    div.textContent = d.getDate();
+    // Only show day number text for Mondays or if zoomLevel >= threshold
+    if (state.zoomLevel < ZOOM_DAY_TEXT_THRESHOLD && d.getDay() !== 1) {
+      div.textContent = '';
+    } else {
+      div.textContent = d.getDate();
+    }
     div.style.gridColumn = `${i + 1}/${i + 2}`;
     div.style.gridRow    = '2/3';
+    // Allow overflow for Monday text if zoomLevel < threshold
+    if (state.zoomLevel < ZOOM_DAY_TEXT_THRESHOLD && d.getDay() === 1) {
+      div.style.zIndex = 2;
+    }
+    // Remove day borders if zoomLevel < threshold (leave week borders)
+    if (state.zoomLevel < ZOOM_DAY_TEXT_THRESHOLD) {
+      div.style.borderRight = 'none';
+      div.style.borderLeft = d.getDay() === 1 ? '2px solid #aaa' : 'none';
+    }
     grid.appendChild(div);
   });
 
