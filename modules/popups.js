@@ -152,7 +152,7 @@ export function openTeamPopup(anchor) {
       document.removeEventListener('mousedown', onClickOutside);
       closePopups();
     }
-  }
+  } 
   document.addEventListener('mousedown', onClickOutside);
 }
 

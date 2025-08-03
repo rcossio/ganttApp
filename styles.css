@@ -10,18 +10,12 @@ body {
   left: 10px;
   z-index: 100;
 }
-/* remove any unintended gaps between control buttons */
-#controls .btn {
-  margin: 0;
-}
-
 #ganttContainer {
   display: flex;
   margin-top: 60px;
   height: calc(100vh - 60px);
 }
 #taskColumn {
-  width: 200px;   /* will be overridden inline on init */
   overflow-y: auto;
   border-right: 1px solid #ddd;
 }
@@ -98,16 +92,6 @@ body {
   justify-content: space-between;
 }
 
-/* make the per-task‐row controls a flexbox so no gap between buttons */
-.task-controls {
-  display: flex;
-}
-.task-controls button {
-  margin: 0;
-}
-.task-controls button + button {
-  margin-left: 4px; /* optional tiny gap between buttons if you like */
-}
 
 .task-block {
   position: absolute;
@@ -188,10 +172,7 @@ body {
   width: 100%;
   cursor: pointer;
 }
-.context-menu .delete-task {
-  color: #fff;
-  background: #dc3545;
-}
+
 .context-menu .btn.btn-sm.btn-primary {
   width: auto;
   padding: 4px 10px;
