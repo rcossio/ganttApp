@@ -1,5 +1,29 @@
 import state from './state.js';
 
+// Synchronize vertical scroll between task column and timeline
+export function synchronizeVerticalScroll() {
+  const taskCol = document.getElementById('taskColumn');
+  const timeline = document.getElementById('timelineContainer');
+  let isSyncingTask = false;
+  let isSyncingTimeline = false;
+
+  taskCol.addEventListener('scroll', () => {
+    if (!isSyncingTask) {
+      isSyncingTimeline = true;
+      timeline.scrollTop = taskCol.scrollTop;
+    }
+    isSyncingTask = false;
+  });
+
+  timeline.addEventListener('scroll', () => {
+    if (!isSyncingTimeline) {
+      isSyncingTask = true;
+      taskCol.scrollTop = timeline.scrollTop;
+    }
+    isSyncingTimeline = false;
+  });
+}
+
 // Date related functions
 export function scrollToToday() {
   const today = new Date();

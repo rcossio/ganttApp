@@ -1,15 +1,11 @@
 import state from './state.js';
 
-/**
- * Persists configuration (including team) to localStorage
- */
 export function saveConfig() {
   localStorage.setItem('tasksConfig', JSON.stringify(state));
 }
 
 export function loadConfig() {
   const saved = localStorage.getItem('tasksConfig')
-  if (!saved || saved === 'undefined') return { groups: [], zoomLevel: 1 }
   try {
     const config = JSON.parse(saved)
     return {

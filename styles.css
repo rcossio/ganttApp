@@ -3,6 +3,7 @@ body {
   margin: 0;
   padding: 0;
 }
+
 #controls {
   position: fixed;
   top: 10px;
@@ -168,7 +169,7 @@ body {
   border-left: 2px solid #aaa;
 }
 
-.task-context-menu {
+.context-menu {
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -180,18 +181,18 @@ body {
   padding: 6px 0;
   border-radius: 6px;
 }
-.task-context-menu button {
+.context-menu button {
   text-align: left;
   padding: 6px 16px;
   border: none;
   width: 100%;
   cursor: pointer;
 }
-.task-context-menu .delete-task {
+.context-menu .delete-task {
   color: #fff;
   background: #dc3545;
 }
-.task-context-menu .btn.btn-sm.btn-primary {
+.context-menu .btn.btn-sm.btn-primary {
   width: auto;
   padding: 4px 10px;
   margin-left: 8px;
@@ -203,7 +204,7 @@ body {
   display: inline-block;
 }
 
-.task-context-menu .popup-btn {
+.context-menu .popup-btn {
   padding: 6px 16px;
   margin: 0;
   cursor: pointer;
@@ -213,14 +214,14 @@ body {
   width: 100%;
   transition: background-color 0.3s;
 }
-.task-context-menu .popup-btn:hover {
+.context-menu .popup-btn:hover {
   background-color: #f0f0f0;
 }
-.task-context-menu strong {
+.context-menu strong {
   font-size: 1em;
   font-weight: bold;
 }
-.task-context-menu > div {
+.context-menu > div {
   padding: 6px 16px;
 }
 

@@ -1,8 +1,8 @@
 import { loadConfig, saveConfig } from './modules/config.js';
-import { initResizer, scrollToToday, flattenRows, dayWidth, initDrag, generateDays  } from './modules/utils.js';
+import { initResizer, scrollToToday, flattenRows, dayWidth, initDrag, generateDays, synchronizeVerticalScroll} from './modules/utils.js';
 import { render, renderBlocks} from './modules/render.js';
 import state from './modules/state.js';
-import { createZoomInButton, createZoomOutButton, createDownloadConfigButton, createUploadConfigButton, createManageTeamButton } from './modules/controlButtons.js';
+import { ZoomInButton, ZoomOutButton, DownloadConfigButton, UploadConfigButton, ManageTeamButton } from './modules/controlButtons.js';
 
 // Init
 function init() {
@@ -20,11 +20,11 @@ function init() {
   // Control Buttons
   const controls = document.getElementById('controls');
   controls.innerHTML = '';
-  controls.appendChild(createZoomOutButton());
-  controls.appendChild(createZoomInButton());
-  controls.appendChild(createDownloadConfigButton());
-  controls.appendChild(createUploadConfigButton());
-  controls.appendChild(createManageTeamButton());
+  controls.appendChild(ZoomOutButton());
+  controls.appendChild(ZoomInButton());
+  controls.appendChild(DownloadConfigButton());
+  controls.appendChild(UploadConfigButton());
+  controls.appendChild(ManageTeamButton());
 
   // Initialize drag-and-drop resizing and task block dragging
   initDrag(
@@ -41,25 +41,8 @@ function init() {
     document.getElementById('ganttContainer')
   );
 
-  // synchronize vertical scrolling between task column and timeline
-  const taskCol = document.getElementById('taskColumn');
-  const timeline = document.getElementById('timelineContainer');
-  let isSyncingTask = false;
-  let isSyncingTimeline = false;
-  taskCol.addEventListener('scroll', () => {
-    if (!isSyncingTask) {
-      isSyncingTimeline = true;
-      timeline.scrollTop = taskCol.scrollTop;
-    }
-    isSyncingTask = false;
-  });
-  timeline.addEventListener('scroll', () => {
-    if (!isSyncingTimeline) {
-      isSyncingTask = true;
-      taskCol.scrollTop = timeline.scrollTop;
-    }
-    isSyncingTimeline = false;
-  });
+  // Synchronize vertical scroll between task column and timeline
+  synchronizeVerticalScroll();
 
 }
 

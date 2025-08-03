@@ -1,19 +1,18 @@
 import state from './state.js';
 import { flattenRows, dayWidth } from './utils.js';
 import { saveConfig } from './config.js';
-import { createCollapseButton, createGroupRenameButton, createGroupAddTaskButton, createGroupDeleteButton } from './groupButtons.js';
-import { createEditNameButton, createEditColorButton, createDeleteTaskButton, createTaskContextMenu } from './taskButtons.js';
+import { CollapseButton, GroupRenameButton, GroupAddTaskButton, GroupDeleteButton } from './groupButtons.js';
+import { TaskContextMenu } from './TaskContextMenu.js';
 import { closePopups, positionPopup } from './popups.js';
-import { createClearButton } from './specialButtons.js';
+import { ClearButton, AddGroupButton } from './specialButtons.js';
 import { attachClickOutside } from './utils.js';
 
 // Main render
 export function render() {
   const rows = flattenRows();
-  const dw = dayWidth();
 
   renderTaskColumn(rows);
-  renderTimeline(rows, dw);
+  renderTimeline(rows);
 }
 
 // Left column
@@ -31,42 +30,34 @@ function renderTaskColumn(rows) {
   //Add dummy row so everything lines up under the two timeline headers
   const dummy = document.createElement('div');
   dummy.className = 'task-cell';
-  // add Add Group button in dummy cell
-  dummy.innerHTML = `<button id="addGroupDummy" class="btn btn-primary btn-sm">+ Add Group</button>`;
+  dummy.appendChild(AddGroupButton());
   col.appendChild(dummy);
-  // attach click handler for dummy Add Group
-  document.getElementById('addGroupDummy').onclick = () => {
-    state.groups.push({ name: 'New Group', collapsed: false, tasks: [] });
-    saveConfig();
-    render();
-  };
 
+  // Render each task/group
   rows.forEach((row, idx) => {
     const cell = document.createElement('div');
     cell.className = row.type === 'group' ? 'group-cell' : 'task-cell';
-    if (row.type === 'group') {
-      // replace inline HTML for groups with factory functions
+    if (row.type === 'group') { // Group row
       cell.innerHTML = '';
-      cell.appendChild(createCollapseButton(rows, idx));
+      cell.appendChild(CollapseButton(rows, idx));
       const nameSpan = document.createElement('span');
       nameSpan.textContent = row.group.name;
       cell.appendChild(nameSpan);
-      cell.appendChild(createGroupRenameButton(rows, idx));
-      cell.appendChild(createGroupAddTaskButton(rows, idx));
+      cell.appendChild(GroupRenameButton(rows, idx));
+      cell.appendChild(GroupAddTaskButton(rows, idx));
       if (row.group.tasks.length === 0) {
-        cell.appendChild(createGroupDeleteButton(rows, idx));
+        cell.appendChild(GroupDeleteButton(rows, idx));
       }
-    } else {
-      const t = row.task;
+    } else { // Task row
       cell.innerHTML = '';
       const nameSpan = document.createElement('span');
-      nameSpan.textContent = t.name;
+      nameSpan.textContent = row.task.name;
       cell.appendChild(nameSpan);
       // Context menu logic
       cell.oncontextmenu = (e) => {
         e.preventDefault();
-        document.querySelectorAll('.task-context-menu').forEach(m => m.remove());
-        const menu = createTaskContextMenu(rows, idx);
+        document.querySelectorAll('.context-menu').forEach(m => m.remove());
+        const menu = TaskContextMenu(rows, idx);
         document.body.appendChild(menu);
         // Position menu next to the task cell
         const rect = cell.getBoundingClientRect();
@@ -74,14 +65,14 @@ function renderTaskColumn(rows) {
         menu.style.top = rect.top + window.scrollY + 'px';
         attachClickOutside(menu, () => menu.remove(), () => !document.querySelector('.popup'));
       };
-      // Remove old controlsDiv
     }
     col.appendChild(cell);
   });
 }
 
 // Timeline
-function renderTimeline(rows, dw) {
+function renderTimeline(rows) {
+  const dw = dayWidth();
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
   grid.style.minWidth = `${dw * state.days.length}px`;
@@ -178,8 +169,8 @@ export function renderBlocks(rows) {
           e.preventDefault();
           closePopups();
           const menu = document.createElement('div');
-          menu.className = 'task-context-menu';
-          const btn = createClearButton(task);
+          menu.className = 'context-menu';
+          const btn = ClearButton(task);
           menu.appendChild(btn);
           document.body.appendChild(menu);
           positionPopup(menu, b);

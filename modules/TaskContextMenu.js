@@ -5,14 +5,14 @@ import { render } from "./render.js";
 
 
 // Helper to create context menu for a task
-export function createTaskContextMenu(rows, idx) {
+export function TaskContextMenu(rows, idx) {
   const menu = document.createElement('div');
-  menu.className = 'task-context-menu';
+  menu.className = 'context-menu';
 
   // Create buttons
-  const editNameBtn = createEditNameButton(rows, idx, menu);
-  const editColorBtn = createEditColorButton(rows, idx, menu);
-  const deleteBtn = createDeleteTaskButton(rows, idx, menu);
+  const editNameBtn = EditNameButton(rows, idx, menu);
+  const editColorBtn = EditColorButton(rows, idx, menu);
+  const deleteBtn = DeleteTaskButton(rows, idx, menu);
 
   menu.appendChild(editNameBtn);
   menu.appendChild(editColorBtn);
@@ -22,7 +22,7 @@ export function createTaskContextMenu(rows, idx) {
 }
 
 // Refactor button creators to optionally receive context menu and handle menu visibility
-export function createEditNameButton(rows, idx, contextMenu) {
+function EditNameButton(rows, idx, contextMenu) {
   const btn = document.createElement('button');
   btn.className = 'btn btn-sm btn-light edit-name';
   btn.dataset.idx = idx;
@@ -40,7 +40,7 @@ export function createEditNameButton(rows, idx, contextMenu) {
   return btn;
 }
 
-export function createEditColorButton(rows, idx, contextMenu) {
+function EditColorButton(rows, idx, contextMenu) {
   const btn = document.createElement('button');
   btn.className = 'btn btn-sm btn-light edit-color';
   btn.dataset.idx = idx;
@@ -58,7 +58,7 @@ export function createEditColorButton(rows, idx, contextMenu) {
   return btn;
 }
 
-export function createDeleteTaskButton(rows, idx, contextMenu) {
+function DeleteTaskButton(rows, idx, contextMenu) {
   const btn = document.createElement('button');
   btn.className = 'btn btn-sm btn-danger delete-task';
   btn.dataset.idx = idx;

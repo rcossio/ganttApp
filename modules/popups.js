@@ -1,15 +1,15 @@
 import state from './state.js';
 import { saveConfig } from './config.js';
-import { createRemoveMemberButton } from './specialButtons.js';
+import { RemoveMemberButton } from './specialButtons.js';
 
-export const COLORS = [
+const COLORS = [
 '#8b94a7', '#3344b4', '#883ab0', '#e62788',
 '#ea3a77', '#fe5d4d', '#ff822e', '#ffc800',
 '#77d257', '#48c488', '#2a9d8f', '#264653',
 ]
 
 export function closePopups() {
-  document.querySelectorAll('.popup, .task-context-menu').forEach(p=>p.remove())
+  document.querySelectorAll('.popup, .context-menu').forEach(p=>p.remove())
 }
 
 export function positionPopup(popup, anchor) {
@@ -75,7 +75,7 @@ export function openColorPopup(task, anchor, onSave) {
  */
 export function openTeamPopup(anchor) {
   closePopups();
-  const popup = document.createElement('div'); popup.className = 'task-context-menu';
+  const popup = document.createElement('div'); popup.className = 'context-menu';
   // Header with title and add button
   const headerRow = document.createElement('div');
   headerRow.className = 'team-header-row';
@@ -100,14 +100,13 @@ export function openTeamPopup(anchor) {
       row.addEventListener('contextmenu', function(e) {
         e.preventDefault();
         // Remove only other context menus, not the main team popup
-        document.querySelectorAll('.task-context-menu').forEach(p => {
+        document.querySelectorAll('.context-menu').forEach(p => {
           if (p !== popup) p.remove();
         });
         // Remove member context menu
         const menu = document.createElement('div');
-        menu.className = 'task-context-menu';
-        const btn = createRemoveMemberButton(member, renderList);
-        menu.appendChild(btn);
+        menu.className = 'context-menu';
+        menu.appendChild(RemoveMemberButton(member, renderList));
         document.body.appendChild(menu);
         positionPopup(menu, row);
         // Only close this menu on outside click

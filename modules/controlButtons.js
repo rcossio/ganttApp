@@ -4,7 +4,7 @@ import state from './state.js';
 import { scrollToToday } from './utils.js';
 import { openTeamPopup } from './popups.js';
 
-export function createZoomInButton() {
+export function ZoomInButton() {
   //    <button id="zoomIn"  class="btn btn-secondary">+</button>
   const zoomInButton = document.createElement('button');
   zoomInButton.id = 'zoomIn';
@@ -19,7 +19,7 @@ export function createZoomInButton() {
   return zoomInButton;
 }
 
-export function createZoomOutButton() {
+export function ZoomOutButton() {
   //    <button id="zoomOut" class="btn btn-secondary">-</button
   const zoomOutButton = document.createElement('button');
   zoomOutButton.id = 'zoomOut';
@@ -34,7 +34,7 @@ export function createZoomOutButton() {
   return zoomOutButton;
 }
 
-export function createDownloadConfigButton() {
+export function DownloadConfigButton() {
   const downloadConfigButton = document.createElement('button');
   downloadConfigButton.id = 'downloadConfig';
   downloadConfigButton.className = 'btn btn-success';
@@ -45,7 +45,7 @@ export function createDownloadConfigButton() {
   return downloadConfigButton;
 }
 
-export function createUploadConfigButton() {
+export function UploadConfigButton() {
   const uploadConfigButton = document.createElement('button');
   uploadConfigButton.id = 'uploadConfigBtn';
   uploadConfigButton.className = 'btn btn-secondary';
@@ -78,7 +78,7 @@ export function createUploadConfigButton() {
 /**
  * Creates "Manage Team" button that opens a popup listing team members.
  */
-export function createManageTeamButton() {
+export function ManageTeamButton() {
   const btn = document.createElement('button');
   btn.id = 'manageTeam';
   btn.className = 'btn btn-secondary';

@@ -4,7 +4,7 @@ import state from "./state.js";
 import { render } from "./render.js";
 
 // Group controls
-export function createCollapseButton(rows,idx) {
+export function CollapseButton(rows,idx) {
   const btn = document.createElement('button');
   btn.className = 'collapse-toggle';
   btn.dataset.idx = idx;
@@ -21,7 +21,7 @@ export function createCollapseButton(rows,idx) {
   return btn;
 }
 
-export function createGroupRenameButton(rows,idx) {
+export function GroupRenameButton(rows,idx) {
   const btn = document.createElement('button');
   btn.className = 'btn btn-sm btn-light group-rename';
   btn.dataset.idx = idx;
@@ -34,7 +34,7 @@ export function createGroupRenameButton(rows,idx) {
   return btn;
 }
 
-export function createGroupAddTaskButton(rows, idx) {
+export function GroupAddTaskButton(rows, idx) {
   const btn = document.createElement('button');
   btn.className = 'btn btn-sm btn-light group-add-task';
   btn.dataset.idx = idx;
@@ -50,7 +50,7 @@ export function createGroupAddTaskButton(rows, idx) {
   return btn;
 }
 
-export function createGroupDeleteButton(rows,idx) {
+export function GroupDeleteButton(rows,idx) {
   const btn = document.createElement('button');
   btn.className = 'btn btn-sm btn-danger group-delete';
   btn.dataset.idx = idx;
