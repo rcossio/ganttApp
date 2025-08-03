@@ -1,4 +1,49 @@
 import state from './state.js';
+import { closePopups } from './popupMenus.js';
+
+// Date related functions
+export function generateDays() {
+  const days = []
+  const year = new Date().getFullYear()
+  for (let d=new Date(year,0,1); d.getFullYear()===year; d.setDate(d.getDate()+1)) {
+    days.push(new Date(d))
+  }
+  return days
+}
+
+export function scrollToToday() {
+  const today = new Date();
+  const days = state.showWeekends === false
+    ? state.days.filter(d => d.getDay() !== 0 && d.getDay() !== 6)
+    : state.days;
+  // find index of today in days array
+  let idx = days.findIndex(d => d.toDateString() === today.toDateString());
+  // If today is not found (weekend hidden), scroll to next weekday
+  if (idx === -1) {
+    idx = days.findIndex(d => d > today);
+    if (idx === -1) idx = 0; // fallback to first day
+  }
+  if (idx >= 0) {
+    const offIdx = Math.max(0, idx - 10);
+    document.getElementById('timelineContainer').scrollLeft = offIdx * dayWidth();
+  }
+}
+
+// State functions
+// Measurements
+export function dayWidth() { return state.baseDayWidth * state.zoomLevel; }
+
+// Flatten groups into header/task rows for rendering
+export function flattenRows() {
+  const r = [];
+  state.groups.forEach((g, gi) => {
+    r.push({ type: 'group', group: g, gi });
+    if (!g.collapsed) {
+      g.tasks.forEach((t, ti) => r.push({ type: 'task', task: t, gi, ti }));
+    }
+  });
+  return r;
+}
 
 // Synchronize vertical scroll between task column and timeline
 export function synchronizeVerticalScroll() {
@@ -56,56 +101,12 @@ export function initResizer() {
   document.addEventListener('mouseup', upHandler);
 }
 
-// Date related functions
-export function generateDays() {
-  const days = []
-  const year = new Date().getFullYear()
-  for (let d=new Date(year,0,1); d.getFullYear()===year; d.setDate(d.getDate()+1)) {
-    days.push(new Date(d))
-  }
-  return days
-}
-
-export function scrollToToday() {
-  const today = new Date();
-  const days = state.showWeekends === false
-    ? state.days.filter(d => d.getDay() !== 0 && d.getDay() !== 6)
-    : state.days;
-  // find index of today in days array
-  let idx = days.findIndex(d => d.toDateString() === today.toDateString());
-  // If today is not found (weekend hidden), scroll to next weekday
-  if (idx === -1) {
-    idx = days.findIndex(d => d > today);
-    if (idx === -1) idx = 0; // fallback to first day
-  }
-  if (idx >= 0) {
-    const offIdx = Math.max(0, idx - 10);
-    document.getElementById('timelineContainer').scrollLeft = offIdx * dayWidth();
-  }
-}
-
-// State functions
-// Measurements
-export function dayWidth() { return state.baseDayWidth * state.zoomLevel; }
-
-// Flatten groups into header/task rows for rendering
-export function flattenRows() {
-  const r = [];
-  state.groups.forEach((g, gi) => {
-    r.push({ type: 'group', group: g, gi });
-    if (!g.collapsed) {
-      g.tasks.forEach((t, ti) => r.push({ type: 'task', task: t, gi, ti }));
-    }
-  });
-  return r;
-}
-
 // Utility: Attach outside click handler and auto-remove
-export function attachClickOutside(element, callback, extraCondition) {
+export function attachOnClickOutside(element, extraCondition) {
   function handler(ev) {
     const condition = typeof extraCondition === 'function' ? extraCondition() : true;
     if (!element.contains(ev.target) && condition) {
-      callback();
+      closePopups();
       document.removeEventListener('mousedown', handler);
     }
   }

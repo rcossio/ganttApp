@@ -1,6 +1,7 @@
 import state from './state.js';
 import { AddTeamMemberButton } from './specialButtons.js';
 import TeamMemberRow from './TeamMemberRow.js';
+import { attachOnClickOutside } from './utils.js';
 
 const COLORS = [
 '#8b94a7', '#3344b4', '#883ab0', '#e62788',
@@ -20,7 +21,6 @@ export function positionPopup(popup, anchor) {
 }
 
 export function openNamePopup(task, anchor, onSave) {
-  closePopups()
   const popup = document.createElement('div'); popup.className='popup'
   const input = Object.assign(document.createElement('input'), {value:task.name})
   input.addEventListener('keydown', e => {
@@ -44,7 +44,6 @@ export function openNamePopup(task, anchor, onSave) {
 }
 
 export function openColorPopup(task, anchor, onSave) {
-  closePopups()
   const popup = document.createElement('div'); popup.className='popup'
   const palette = document.createElement('div'); palette.className='color-palette'
   COLORS.forEach(c=> {
@@ -71,7 +70,6 @@ export function openColorPopup(task, anchor, onSave) {
 }
 
 export function openTeamMenu(anchor) {
-
   function renderTeamList(container) {
     container.innerHTML = '';
     state.team.forEach((member, idx) => {
@@ -105,11 +103,5 @@ export function openTeamMenu(anchor) {
   positionPopup(popup, anchor);
 
   // Close popup when clicking outside
-  function onClickOutside(e) {
-    if (!popup.contains(e.target)) {
-      document.removeEventListener('mousedown', onClickOutside);
-      closePopups();
-    }
-  } 
-  document.addEventListener('mousedown', onClickOutside);
+  attachOnClickOutside(popup);
 }

@@ -3,11 +3,12 @@ import { flattenRows, dayWidth } from './utils.js';
 
 import { CollapseButton, GroupRenameButton, GroupAddTaskButton, GroupDeleteButton } from './groupButtons.js';
 import { AddGroupButton } from './specialButtons.js';
-import TaskSingleBlock from './TaskSingleBlock.js';
+import TaskBlock from './TaskBlock.js';
 import TaskContextMenu from './TaskContextMenu.js';
 import TimelineCell from './TimelineCell.js';
 
-import { attachClickOutside } from './utils.js';
+import { closePopups, positionPopup } from './popupMenus.js';
+import { attachOnClickOutside } from './utils.js';
 
 // Main render
 export async function render() {
@@ -65,14 +66,13 @@ function renderTaskColumn(rows) {
       // Context menu logic
       cell.oncontextmenu = (e) => {
         e.preventDefault();
-        document.querySelectorAll('.context-menu').forEach(m => m.remove());
+        closePopups();
         const menu = TaskContextMenu(rows, idx);
         document.body.appendChild(menu);
-        // Position menu next to the task cell
-        const rect = cell.getBoundingClientRect();
-        menu.style.left = rect.right + 8 + 'px';
-        menu.style.top = rect.top + window.scrollY + 'px';
-        attachClickOutside(menu, () => menu.remove(), () => !document.querySelector('.popup'));
+        positionPopup(menu, cell);
+
+        // Close popup when clicking outside menu or submenu
+        attachOnClickOutside(menu, () => !document.querySelector('.popup'));
       };
     }
     col.appendChild(cell);
@@ -139,12 +139,7 @@ function renderTimeline(rows) {
     if (row.type === 'task') {
       const task = row.task;
       if (task.startDate != null && task.endDate != null) {
-        tl.appendChild(TaskSingleBlock(
-          task,
-          rIdx,
-          days,
-          dw
-        ));
+        tl.appendChild(TaskBlock(task,rIdx,days,dw));
       }
     }
   });

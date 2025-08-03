@@ -1,10 +1,10 @@
 import { closePopups, positionPopup } from './popupMenus.js';
 import { ClearButton } from './specialButtons.js';
-import { attachClickOutside } from './utils.js';
+import { attachOnClickOutside } from './utils.js';
 import { saveConfig } from './config.js';
 import { render } from './render.js';
 
-function TaskSingleBlock(task, rIdx, days, dw) {
+function TaskBlock(task, rIdx, days, dw) {
   const b = document.createElement('div');
   b.className = 'task-block';
   // Map dates to indices
@@ -46,7 +46,7 @@ function TaskSingleBlock(task, rIdx, days, dw) {
     menu.appendChild(btn);
     document.body.appendChild(menu);
     positionPopup(menu, b);
-    attachClickOutside(menu, () => { closePopups(); menu.remove(); });
+    attachOnClickOutside(menu);
   });
 
   return b;
@@ -101,4 +101,4 @@ function createBlockMoveHandler({ task, startIdx, endIdx, days, dw }) {
   };
 }
 
-export default TaskSingleBlock;
+export default TaskBlock;
