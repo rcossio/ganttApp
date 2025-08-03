@@ -1,6 +1,6 @@
 import { loadConfig, saveConfig } from './modules/config.js';
 import { initResizer, scrollToToday, flattenRows, dayWidth, initDrag, generateDays, synchronizeVerticalScroll} from './modules/utils.js';
-import { render, renderBlocks} from './modules/render.js';
+import { render } from './modules/render.js';
 import state from './modules/state.js';
 import { ZoomInButton, ZoomOutButton, DownloadConfigButton, UploadConfigButton, ManageTeamButton } from './modules/controlButtons.js';
 
@@ -33,7 +33,7 @@ function init() {
     dayWidth,     // 3) a fn that tells you the pixel‐width of one day
     () => {       // 4) onUpdate
       saveConfig();
-      renderBlocks(flattenRows());
+      render();
     }
   );
   initResizer(

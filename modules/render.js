@@ -1,11 +1,11 @@
 import state from './state.js';
 import { flattenRows, dayWidth } from './utils.js';
-import { saveConfig } from './config.js';
 
 import { CollapseButton, GroupRenameButton, GroupAddTaskButton, GroupDeleteButton } from './groupButtons.js';
 import { AddGroupButton } from './specialButtons.js';
 import TaskSingleBlock from './TaskSingleBlock.js';
 import TaskContextMenu from './TaskContextMenu.js';
+import TimelineCell from './TimelineCell.js';
 
 import { attachClickOutside } from './utils.js';
 
@@ -116,28 +116,11 @@ function renderTimeline(rows) {
   // empty cells for tasks (starting row 3)
   rows.forEach((row, rIdx) => {
     state.days.forEach((_, i) => {
-      const cell = document.createElement('div');
-      cell.className = 'timeline-cell';
-      if (state.days[i].getDay() === 1) cell.classList.add('monday');
-      cell.style.gridColumn = `${i + 1}/${i + 2}`;
-      cell.style.gridRow    = `${rIdx + 3}/${rIdx + 4}`;
-      if (row.type === 'task' && row.task.start == null) {
-         cell.addEventListener('click', () => {
-           row.task.start = i;
-           row.task.end   = i;
-           saveConfig();
-           render();
-         });
-      }
-      grid.appendChild(cell);
+      grid.appendChild(TimelineCell(row, rIdx, i));
     });
   });
 
-  renderTaskBlocks(rows);
-}
-
-// Blocks and drag
-export function renderTaskBlocks(rows) {
+  // Render task blocks
   document.querySelectorAll('.task-block').forEach(b => b.remove());
   const tl = document.getElementById('timelineContainer');
   rows.forEach((row, rIdx) => {
@@ -149,4 +132,3 @@ export function renderTaskBlocks(rows) {
     }
   });
 }
-
