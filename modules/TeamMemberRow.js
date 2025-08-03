@@ -1,7 +1,7 @@
 import { RemoveMemberButton } from './specialButtons.js';
 import { positionPopup } from './utils.js';
 
-function TeamMemberRow(member) {
+function TeamMemberRow(member, renderTeamListCallback) {
   const row = document.createElement('button');
   row.className = 'btn btn-sm popup-btn';
   row.textContent = `👤 ${member.initials} - ${member.email}`;
@@ -13,7 +13,7 @@ function TeamMemberRow(member) {
     // Remove member context menu
     const menu = document.createElement('div');
     menu.className = 'context-menu';
-    menu.appendChild(RemoveMemberButton(member, () => renderTeamList(container)));
+    menu.appendChild(RemoveMemberButton(member, renderTeamListCallback));
     document.body.appendChild(menu);
     positionPopup(menu, row);
     // Only close this menu on outside click

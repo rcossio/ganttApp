@@ -2,7 +2,7 @@ import state from './state.js';
 import { AddTeamMemberButton } from './specialButtons.js';
 import TeamMemberRow from './TeamMemberRow.js';
 import { attachOnClickOutside } from './utils.js';
-
+import { closePopups, positionPopup } from './utils.js';
 
 export function openNamePopup(task, anchor, onSave) {
   const popup = document.createElement('div'); popup.className='popup'
@@ -63,7 +63,7 @@ export function openTeamMenu(anchor) {
   function renderTeamList(container) {
     container.innerHTML = '';
     state.team.forEach((member, idx) => {
-      container.append(TeamMemberRow(member));
+      container.append(TeamMemberRow(member, () => renderTeamList(container)));
     });
   }
 

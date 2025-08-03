@@ -37,13 +37,15 @@ export function RemoveMemberButton(member, renderTeamListCallback) {
     const emailToRemove = member.email;
     const removedIdx = state.team.findIndex(m => m.email === emailToRemove);
     if (removedIdx !== -1) {
-      state.team.splice(removedIdx, 1);
-      saveConfig();
-      // Remove parent menu
-      const menu = btn.closest('.context-menu');
-      if (menu) menu.remove();
-      // Directly call renderList to update UI
-      renderTeamListCallback();
+      if (confirm(`Are you sure you want to remove the member "${member.initials}" (${member.email})?`)) {
+        state.team.splice(removedIdx, 1);
+        saveConfig();
+        // Remove parent menu
+        const menu = btn.closest('.context-menu');
+        if (menu) menu.remove();
+        // Directly call renderList to update UI
+        renderTeamListCallback();
+      }
     }
   };
   return btn;

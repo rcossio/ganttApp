@@ -6,7 +6,6 @@ I made this because Click*p charges 7 USD if you see your tasks in a Gantt chart
 
 
 ## Next steps
-- Feat: Alert when deleting a team member
 - Feat: Add an assigned person per task.
 - Feat: dragging groups and task to reorder them 
 - Feat: the vertical scroll should not move the header
