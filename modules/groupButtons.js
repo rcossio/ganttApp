@@ -42,7 +42,7 @@ export function GroupAddTaskButton(rows, idx) {
   btn.onclick = () => {
     const idx = +btn.dataset.idx;
     const row = rows[idx];
-    const task = { name: 'New Task', start: null, end: null, color: '#0082c8' };
+    const task = { name: 'New Task', startDate: null, endDate: null, color: '#0082c8' };
     row.group.tasks.push(task);
     saveConfig();
     render();

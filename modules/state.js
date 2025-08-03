@@ -3,6 +3,7 @@ const state = {
   groups: [],
   baseDayWidth: 40,
   zoomLevel: 1,
+  showWeekends: true,
   days: [],
   team: []
 };

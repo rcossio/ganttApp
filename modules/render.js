@@ -10,8 +10,15 @@ import TimelineCell from './TimelineCell.js';
 import { attachClickOutside } from './utils.js';
 
 // Main render
-export function render() {
+export async function render() {
   const rows = flattenRows();
+
+  // Add Weekend toggle button to controls
+  const controls = document.getElementById('controls');
+  if (!document.getElementById('toggleWeekends')) {
+    const { WeekendToggleButton } = await import('./controlButtons.js');
+    controls.appendChild(WeekendToggleButton());
+  }
 
   renderTaskColumn(rows);
   renderTimeline(rows);
@@ -77,13 +84,16 @@ function renderTimeline(rows) {
   const dw = dayWidth();
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
-  grid.style.minWidth = `${dw * state.days.length}px`;
-  grid.style.gridTemplateColumns = `repeat(${state.days.length}, ${dw}px)`;
+  const days = state.showWeekends === false
+    ? state.days.filter(d => d.getDay() !== 0 && d.getDay() !== 6)
+    : state.days;
+  grid.style.minWidth = `${dw * days.length}px`;
+  grid.style.gridTemplateColumns = `repeat(${days.length}, ${dw}px)`;
   grid.style.gridTemplateRows = `40px 40px repeat(${rows.length}, 40px)`;
 
   // Months (row 1)
   const spans = [];
-  state.days.forEach((d, i) => {
+  days.forEach((d, i) => {
     const m = d.toLocaleString('default', { month: 'short' });
     const last = spans.length - 1;
     if (last < 0 || spans[last].month !== m) spans.push({ month: m, start: i, span: 1 });
@@ -100,13 +110,15 @@ function renderTimeline(rows) {
 
   // Days (row 2)
   const todayDate = new Date().toDateString();
-  state.days.forEach((d, i) => {
+  days.forEach((d, i) => {
     const div = document.createElement('div');
     // highlight today
     const isToday = d.toDateString() === todayDate;
+    const isWeekend = d.getDay() === 0 || d.getDay() === 6;
     div.className = 'day-col' +
       (d.getDay() === 1 ? ' monday' : '') +
-      (isToday ? ' today' : '');
+      (isToday ? ' today' : '') +
+      (isWeekend ? ' weekend' : '');
     div.textContent = d.getDate();
     div.style.gridColumn = `${i + 1}/${i + 2}`;
     div.style.gridRow    = '2/3';
@@ -115,8 +127,8 @@ function renderTimeline(rows) {
 
   // empty cells for tasks (starting row 3)
   rows.forEach((row, rIdx) => {
-    state.days.forEach((_, i) => {
-      grid.appendChild(TimelineCell(row, rIdx, i));
+    days.forEach((_, i) => {
+      grid.appendChild(TimelineCell(row, rIdx, i, days));
     });
   });
 
@@ -126,8 +138,13 @@ function renderTimeline(rows) {
   rows.forEach((row, rIdx) => {
     if (row.type === 'task') {
       const task = row.task;
-      if (task.start != null && task.end != null) {
-        tl.appendChild(TaskSingleBlock(task, rIdx));
+      if (task.startDate != null && task.endDate != null) {
+        tl.appendChild(TaskSingleBlock(
+          task,
+          rIdx,
+          days,
+          dw
+        ));
       }
     }
   });

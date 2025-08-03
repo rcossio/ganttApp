@@ -24,26 +24,65 @@ export function synchronizeVerticalScroll() {
   });
 }
 
+// Utility: Initialize resizer for task column
+export function initResizer() {
+  const divider = document.getElementById('divider');
+  const container = document.getElementById('ganttContainer');
+  let isResizing = false;
+  const minWidth = 100; // Minimum width for the task column
+
+  divider.addEventListener('mousedown', e => {
+    e.preventDefault();
+    isResizing = true;
+    document.body.style.cursor = 'col-resize';
+  });
+  divider.addEventListener('dragstart', e => e.preventDefault());
+
+  function moveHandler(e) {
+    if (!isResizing) return;
+    const rect = container.getBoundingClientRect();
+    let newWidth = e.clientX - rect.left;
+    newWidth = Math.max(minWidth, newWidth);
+    state.firstColWidth = newWidth;
+    document.getElementById('taskColumn').style.width = `${newWidth}px`;
+  }
+
+  function upHandler() {
+    isResizing = false;
+    document.body.style.cursor = '';
+  }
+
+  document.addEventListener('mousemove', moveHandler);
+  document.addEventListener('mouseup', upHandler);
+}
+
 // Date related functions
+export function generateDays() {
+  const days = []
+  const year = new Date().getFullYear()
+  for (let d=new Date(year,0,1); d.getFullYear()===year; d.setDate(d.getDate()+1)) {
+    days.push(new Date(d))
+  }
+  return days
+}
+
 export function scrollToToday() {
   const today = new Date();
+  const days = state.showWeekends === false
+    ? state.days.filter(d => d.getDay() !== 0 && d.getDay() !== 6)
+    : state.days;
   // find index of today in days array
-  const idx = state.days.findIndex(d => d.toDateString() === today.toDateString());
+  let idx = days.findIndex(d => d.toDateString() === today.toDateString());
+  // If today is not found (weekend hidden), scroll to next weekday
+  if (idx === -1) {
+    idx = days.findIndex(d => d > today);
+    if (idx === -1) idx = 0; // fallback to first day
+  }
   if (idx >= 0) {
     const offIdx = Math.max(0, idx - 10);
     document.getElementById('timelineContainer').scrollLeft = offIdx * dayWidth();
   }
 }
-
-export function generateDays() {
-  const days = []
-  const year = new Date().getFullYear()
-  for (let d=new Date(year,0,1); d.getFullYear()===year; d.setDate(d.getDate()+1)) {
-    if (d.getDay()>=1 && d.getDay()<=5) days.push(new Date(d))
-  }
-  return days
-}
-
 
 // State functions
 // Measurements
@@ -59,103 +98,6 @@ export function flattenRows() {
     }
   });
   return r;
-}
-
-
-// Drag functions
-// Initialize a draggable divider between two panels.
-// divider: DOM element to drag
-// container: parent element for width calculations
-export function initResizer(divider, container) {
-  let isResizing = false;
-  const moveHandler = e => {
-    if (!isResizing) return;
-    const rect = container.getBoundingClientRect();
-    const newWidth = e.clientX - rect.left;
-    state.firstColWidth = newWidth;
-    document.getElementById('taskColumn').style.width = `${newWidth}px`;
-  };
-  const upHandler = () => { isResizing = false; };
-
-  divider.addEventListener('mousedown', e => { e.preventDefault(); isResizing = true; });
-  divider.addEventListener('dragstart', e => e.preventDefault());
-  document.addEventListener('mousemove', moveHandler);
-  document.addEventListener('mouseup', upHandler);
-}
-
-// Initialize drag behavior for task-block handles
-export function initDrag(getRows, days, dayWidthFn, onUpdate) {
-  let dragState = null;
-
-  document.addEventListener('mousedown', e => {
-    // start handle drag
-    if (e.target.classList.contains('handle')) {
-      e.stopPropagation();
-      const handle = e.target;
-      const blk = handle.parentElement;
-      const rows = getRows();
-      const row = rows[+blk.dataset.row];
-      const task = row.task;
-      const isStart = handle.classList.contains('start');
-      dragState = { type: 'handle', task, isStart };
-      // attach move/up listeners
-      document.addEventListener('mousemove', moveHandler);
-      document.addEventListener('mouseup', upHandler);
-    }
-    // start block drag (move entire task)
-    else if (e.target.classList.contains('task-block')) {
-      e.stopPropagation();
-      const blk = e.target;
-      const rows = getRows();
-      const row = rows[+blk.dataset.row];
-      const task = row.task;
-      const dw = dayWidthFn();
-      const rect = document.getElementById('grid').getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const initialMouseDay = Math.round(x / dw);
-      dragState = {
-        type: 'block',
-        task,
-        initialMouseDay,
-        initialStart: task.start,
-        initialEnd: task.end
-      };
-      document.addEventListener('mousemove', moveHandler);
-      document.addEventListener('mouseup', upHandler);
-    }
-  });
-
-  function moveHandler(e) {
-    if (!dragState) return;
-    const dw = dayWidthFn();
-    const rect = document.getElementById('grid').getBoundingClientRect();
-    let x = e.clientX - rect.left;
-    let day = Math.round(x / dw);
-    day = Math.max(0, Math.min(days.length - 1, day));
-    if (dragState.type === 'handle') {
-      if (dragState.isStart) {
-        dragState.task.start = Math.min(dragState.task.end, day);
-      } else {
-        dragState.task.end = Math.max(dragState.task.start, day);
-      }
-    } else if (dragState.type === 'block') {
-      const delta = day - dragState.initialMouseDay;
-      const length = dragState.initialEnd - dragState.initialStart;
-      let newStart = dragState.initialStart + delta;
-      // clamp within bounds
-      newStart = Math.max(0, Math.min(days.length - 1 - length, newStart));
-      dragState.task.start = newStart;
-      dragState.task.end = newStart + length;
-    }
-    onUpdate();
-  }
-
-  function upHandler() {
-    // remove the added listeners
-    document.removeEventListener('mousemove', moveHandler);
-    document.removeEventListener('mouseup', upHandler);
-    dragState = null;
-  }
 }
 
 // Utility: Attach outside click handler and auto-remove

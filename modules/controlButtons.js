@@ -86,3 +86,20 @@ export function ManageTeamButton() {
   btn.onclick = () => openTeamPopup(btn);
   return btn;
 }
+
+let showWeekends = true;
+
+export function WeekendToggleButton() {
+  const btn = document.createElement('button');
+  btn.id = 'toggleWeekends';
+  btn.className = 'btn btn-secondary';
+  btn.textContent = showWeekends ? 'Hide Weekends' : 'Show Weekends';
+  btn.onclick = () => {
+    showWeekends = !showWeekends;
+    state.showWeekends = showWeekends;
+    btn.textContent = showWeekends ? 'Hide Weekends' : 'Show Weekends';
+    render();
+    scrollToToday();
+  };
+  return btn;
+}

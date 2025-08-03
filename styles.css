@@ -59,15 +59,21 @@ body {
   border-right: 1px solid #ddd;
 }
 
+/* Thicker left border for Mondays */
+.day-col.monday {
+  border-left: 2px solid #aaa;
+}
+
+/* Weekend styles */
+.day-col.weekend {
+  background-color: #e0e0e0;
+  color: #888;
+}
+
 /* highlight today's date cell */
 .day-col.today {
   background: #007bff;
   color: #fff;
-}
-
-/* Thicker left border for Mondays */
-.day-col.monday {
-  border-left: 2px solid #aaa;
 }
 
 .task-cell {
@@ -151,6 +157,12 @@ body {
 /* Thicker left border for Mondays */
 .timeline-cell.monday {
   border-left: 2px solid #aaa;
+}
+
+/* Weekend styles */
+.timeline-cell.weekend {
+  background-color: #e0e0e0;
+  color: #888;
 }
 
 .context-menu {
