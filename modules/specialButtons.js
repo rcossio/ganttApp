@@ -1,7 +1,7 @@
 import state from './state.js';
 import { saveConfig } from './config.js';
 import { render } from './render.js';
-import { closePopups } from './popupMenus.js';
+import { closePopups } from './utils.js';
 
 export function AddGroupButton() {
   const button = document.createElement('button');
@@ -20,16 +20,11 @@ export function ClearButton(task) {
   btn.className = 'btn btn-sm';
   btn.textContent = '🧹 Clear dates';
   btn.onclick = () => {
-    task.start = null;
-    task.end = null;
+    task.startDate = null;
+    task.endDate = null;
     saveConfig();
-    render();
     closePopups();
-    // Find and remove parent menu
-    let menu = btn.closest('.context-menu');
-    if (menu) menu.remove();
-    // Remove outside click handler
-    document.removeEventListener('mousedown', onClickOutside);
+    render();
   };
   return btn;
 }

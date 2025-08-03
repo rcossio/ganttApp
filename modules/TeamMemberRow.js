@@ -1,5 +1,5 @@
 import { RemoveMemberButton } from './specialButtons.js';
-import { positionPopup } from './popupMenus.js';
+import { positionPopup } from './utils.js';
 
 function TeamMemberRow(member) {
   const row = document.createElement('button');

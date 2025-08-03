@@ -3,22 +3,6 @@ import { AddTeamMemberButton } from './specialButtons.js';
 import TeamMemberRow from './TeamMemberRow.js';
 import { attachOnClickOutside } from './utils.js';
 
-const COLORS = [
-'#8b94a7', '#3344b4', '#883ab0', '#e62788',
-'#ea3a77', '#fe5d4d', '#ff822e', '#ffc800',
-'#77d257', '#48c488', '#2a9d8f', '#264653',
-]
-
-export function closePopups() {
-  document.querySelectorAll('.popup, .context-menu').forEach(p=>p.remove())
-}
-
-export function positionPopup(popup, anchor) {
-  const r = anchor.getBoundingClientRect()
-  Object.assign(popup.style, {
-    left:`${r.right+5}px`, top:`${r.top}px`
-  })
-}
 
 export function openNamePopup(task, anchor, onSave) {
   const popup = document.createElement('div'); popup.className='popup'
@@ -44,6 +28,12 @@ export function openNamePopup(task, anchor, onSave) {
 }
 
 export function openColorPopup(task, anchor, onSave) {
+  const COLORS = [
+  '#8b94a7', '#3344b4', '#883ab0', '#e62788',
+  '#ea3a77', '#fe5d4d', '#ff822e', '#ffc800',
+  '#77d257', '#48c488', '#2a9d8f', '#264653',
+  ]
+
   const popup = document.createElement('div'); popup.className='popup'
   const palette = document.createElement('div'); palette.className='color-palette'
   COLORS.forEach(c=> {

@@ -1,14 +1,11 @@
 import state from './state.js';
-import { flattenRows, dayWidth } from './utils.js';
+import { flattenRows, dayWidth, closePopups, positionPopup, attachOnClickOutside } from './utils.js';
 
 import { CollapseButton, GroupRenameButton, GroupAddTaskButton, GroupDeleteButton } from './groupButtons.js';
 import { AddGroupButton } from './specialButtons.js';
 import TaskBlock from './TaskBlock.js';
 import TaskContextMenu from './TaskContextMenu.js';
 import TimelineCell from './TimelineCell.js';
-
-import { closePopups, positionPopup } from './popupMenus.js';
-import { attachOnClickOutside } from './utils.js';
 
 // Main render
 export async function render() {

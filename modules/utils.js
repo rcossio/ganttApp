@@ -1,5 +1,4 @@
 import state from './state.js';
-import { closePopups } from './popupMenus.js';
 
 // Date related functions
 export function generateDays() {
@@ -43,6 +42,18 @@ export function flattenRows() {
     }
   });
   return r;
+}
+
+//Popup utils
+export function closePopups() {
+  document.querySelectorAll('.popup, .context-menu').forEach(p=>p.remove())
+}
+
+export function positionPopup(popup, anchor) {
+  const r = anchor.getBoundingClientRect()
+  Object.assign(popup.style, {
+    left:`${r.right+5}px`, top:`${r.top}px`
+  })
 }
 
 // Synchronize vertical scroll between task column and timeline
