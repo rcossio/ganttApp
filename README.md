@@ -17,7 +17,6 @@ I made this because Click*p charges 7 USD if you see your tasks in a Gantt chart
 - Feat: Drag the timeline when draggin from the header of empty space
 - Feat: Hide the overflowed text in the Task Blocks so you can read the beggining (instead of two lines)
 - Feat: The task menu could open from both the task row or the task block
-- Feat: Set max zoom level to 0.1-5.0
 - Feat: dont scroll to date when zooming in/out
 - Feat: Set the name of the task to the left of the view when the name is not visible (the center is to the right)
 - Feat: Sum in/out with ctrl+scroll

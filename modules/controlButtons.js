@@ -11,7 +11,7 @@ export function ZoomInButton() {
   zoomInButton.className = 'btn btn-secondary';
   zoomInButton.textContent = '+';
   zoomInButton.onclick = () => {
-    state.zoomLevel *= 1.25;
+    state.zoomLevel = Math.min(state.zoomLevel * 1.25, 5.0);
     saveConfig();
     render();
     scrollToToday();
@@ -26,7 +26,7 @@ export function ZoomOutButton() {
   zoomOutButton.className = 'btn btn-secondary';
   zoomOutButton.textContent = '-';
   zoomOutButton.onclick = () => {
-    state.zoomLevel /= 1.25;
+    state.zoomLevel = Math.max(state.zoomLevel / 1.25, 0.1);
     saveConfig();
     render();
     scrollToToday();
