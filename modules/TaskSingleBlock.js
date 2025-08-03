@@ -1,8 +1,6 @@
-import { dayWidth, flattenRows } from './utils.js';
 import { closePopups, positionPopup } from './popups.js';
 import { ClearButton } from './specialButtons.js';
 import { attachClickOutside } from './utils.js';
-import state from './state.js';
 import { saveConfig } from './config.js';
 import { render } from './render.js';
 
@@ -19,6 +17,7 @@ function TaskSingleBlock(task, rIdx, days, dw) {
   b.textContent      = task.name;
   b.dataset.row      = rIdx;
   
+  // Handles for resizing
   ['start', 'end'].forEach(pos => {
     const h = document.createElement('div');
     h.className = `handle ${pos}`;
@@ -29,56 +28,13 @@ function TaskSingleBlock(task, rIdx, days, dw) {
     h.style.height = '100%';
     h.style.cursor = 'ew-resize';
     b.appendChild(h);
-
-    // Drag logic for resizing
-    h.addEventListener('mousedown', (e) => {
-      e.stopPropagation();
-      let startX = e.clientX;
-      let origIdx = pos === 'start' ? startIdx : endIdx;
-      function onMouseMove(ev) {
-        let delta = Math.round((ev.clientX - startX) / dw);
-        let newIdx = origIdx + delta;
-        newIdx = Math.max(0, Math.min(days.length - 1, newIdx));
-        if (pos === 'start' && newIdx <= endIdx) {
-          task.startDate = days[newIdx].toISOString().slice(0, 10);
-        } else if (pos === 'end' && newIdx >= startIdx) {
-          task.endDate = days[newIdx].toISOString().slice(0, 10);
-        }
-        render();
-      }
-      function onMouseUp() {
-        saveConfig();
-        window.removeEventListener('mousemove', onMouseMove);
-        window.removeEventListener('mouseup', onMouseUp);
-      }
-      window.addEventListener('mousemove', onMouseMove);
-      window.addEventListener('mouseup', onMouseUp);
-    });
+    h.addEventListener('mousedown', createResizeMoveHandler({ task, pos, startIdx, endIdx, days, dw }));
   });
 
   // Drag logic for moving the block
   b.addEventListener('mousedown', (e) => {
     if (e.target.classList.contains('handle')) return;
-    let startX = e.clientX;
-    let origStartIdx = startIdx;
-    let origEndIdx = endIdx;
-    function onMouseMove(ev) {
-      let delta = Math.round((ev.clientX - startX) / dw);
-      let newStartIdx = Math.max(0, Math.min(days.length - 1, origStartIdx + delta));
-      let newEndIdx = Math.max(0, Math.min(days.length - 1, origEndIdx + delta));
-      if (newEndIdx >= newStartIdx) {
-        task.startDate = days[newStartIdx].toISOString().slice(0, 10);
-        task.endDate = days[newEndIdx].toISOString().slice(0, 10);
-        render();
-      }
-    }
-    function onMouseUp() {
-      saveConfig();
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-    }
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
+    createBlockMoveHandler({ task, startIdx, endIdx, days, dw })(e);
   });
 
   b.addEventListener('contextmenu', e => {
@@ -94,6 +50,55 @@ function TaskSingleBlock(task, rIdx, days, dw) {
   });
 
   return b;
+}
+
+function createResizeMoveHandler({ task, pos, startIdx, endIdx, days, dw }) {
+  return function(e) {
+    const initialX = e.clientX;
+    const origIdx = pos === 'start' ? startIdx : endIdx;
+    function onMouseMove(ev) {
+      const delta = Math.round((ev.clientX - initialX) / dw);
+      let newIdx = Math.max(0, Math.min(days.length - 1, origIdx + delta));
+      if (pos === 'start' && newIdx <= endIdx) {
+        task.startDate = days[newIdx].toISOString().slice(0, 10);
+      } else if (pos === 'end' && newIdx >= startIdx) {
+        task.endDate = days[newIdx].toISOString().slice(0, 10);
+      }
+      render();
+    }
+    function onMouseUp() {
+      saveConfig();
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    }
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
+}
+
+function createBlockMoveHandler({ task, startIdx, endIdx, days, dw }) {
+  return function(e) {
+    const initialX = e.clientX;
+    const origStartIdx = startIdx;
+    const origEndIdx = endIdx;
+    function onMouseMove(ev) {
+      const delta = Math.round((ev.clientX - initialX) / dw);
+      let newStartIdx = Math.max(0, Math.min(days.length - 1, origStartIdx + delta));
+      let newEndIdx = Math.max(0, Math.min(days.length - 1, origEndIdx + delta));
+      if (newEndIdx >= newStartIdx) {
+        task.startDate = days[newStartIdx].toISOString().slice(0, 10);
+        task.endDate = days[newEndIdx].toISOString().slice(0, 10);
+        render();
+      }
+    }
+    function onMouseUp() {
+      saveConfig();
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    }
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
 }
 
 export default TaskSingleBlock;

@@ -34,7 +34,7 @@ export function ClearButton(task) {
   return btn;
 }
 
-export function RemoveMemberButton(member, renderList) {
+export function RemoveMemberButton(member, renderTeamListCallback) {
   const btn = document.createElement('button');
   btn.className = 'btn btn-sm btn-danger';
   btn.textContent = 'Remove member';
@@ -48,8 +48,34 @@ export function RemoveMemberButton(member, renderList) {
       const menu = btn.closest('.context-menu');
       if (menu) menu.remove();
       // Directly call renderList to update UI
-      renderList();
+      renderTeamListCallback();
     }
   };
   return btn;
+}
+
+export function AddTeamMemberButton(container, renderTeamListCallback) {
+  const addBtn = document.createElement('button');
+  addBtn.textContent = '+';
+  addBtn.className = 'btn btn-sm btn-primary';
+  addBtn.onclick = () => {
+    container.innerHTML = '';
+    const form = document.createElement('div');
+    form.className = 'team-form';
+    const initInput = Object.assign(document.createElement('input'), { placeholder: 'Initials' });
+    const emailInput = Object.assign(document.createElement('input'), { placeholder: 'Email', type: 'email' });
+    const saveBtn = document.createElement('button'); saveBtn.textContent = 'Save'; saveBtn.className = 'btn btn-sm btn-success';
+    form.append(initInput, emailInput, saveBtn);
+    container.append(form);
+    saveBtn.onclick = () => {
+      const initials = initInput.value.trim();
+      const email = emailInput.value.trim();
+      if (initials && email) {
+        state.team.push({ initials, email });
+        saveConfig();
+        renderTeamListCallback();
+      }
+    };
+  };
+  return addBtn;
 }
