@@ -1,10 +1,12 @@
 import state from './state.js';
 import { flattenRows, dayWidth } from './utils.js';
 import { saveConfig } from './config.js';
+
 import { CollapseButton, GroupRenameButton, GroupAddTaskButton, GroupDeleteButton } from './groupButtons.js';
-import { TaskContextMenu } from './TaskContextMenu.js';
-import { closePopups, positionPopup } from './popups.js';
-import { ClearButton, AddGroupButton } from './specialButtons.js';
+import { AddGroupButton } from './specialButtons.js';
+import TaskSingleBlock from './TaskSingleBlock.js';
+import TaskContextMenu from './TaskContextMenu.js';
+
 import { attachClickOutside } from './utils.js';
 
 // Main render
@@ -131,52 +133,20 @@ function renderTimeline(rows) {
     });
   });
 
-  renderBlocks(rows);
+  renderTaskBlocks(rows);
 }
 
 // Blocks and drag
-export function renderBlocks(rows) {
+export function renderTaskBlocks(rows) {
   document.querySelectorAll('.task-block').forEach(b => b.remove());
   const tl = document.getElementById('timelineContainer');
-  const dw = dayWidth();
   rows.forEach((row, rIdx) => {
     if (row.type === 'task') {
       const task = row.task;
       if (task.start != null && task.end != null) {
-        const b = document.createElement('div');
-        b.className = 'task-block';
-        b.style.top        = `${40 * (rIdx + 2) + 5}px`;
-        b.style.left       = `${dw * task.start}px`;
-        b.style.width      = `${dw * (task.end - task.start + 1)}px`;
-        b.style.background = task.color;
-        b.textContent      = task.name;
-        b.dataset.row      = rIdx;
-        ['start', 'end'].forEach(pos => {
-          const h = document.createElement('div');
-          h.className = `handle ${pos}`;
-          // make handle draggable: position and size
-          h.style.position = 'absolute';
-          h.style.top = '0';
-          h.style[pos === 'start' ? 'left' : 'right'] = '0';
-          h.style.width = '4px';
-          h.style.height = '100%';
-          h.style.cursor = 'ew-resize';
-          b.appendChild(h);
-        });
-        tl.appendChild(b);
-        // Add context menu for clearing dates
-        b.addEventListener('contextmenu', e => {
-          e.preventDefault();
-          closePopups();
-          const menu = document.createElement('div');
-          menu.className = 'context-menu';
-          const btn = ClearButton(task);
-          menu.appendChild(btn);
-          document.body.appendChild(menu);
-          positionPopup(menu, b);
-          attachClickOutside(menu, () => { closePopups(); menu.remove(); });
-        });
+        tl.appendChild(TaskSingleBlock(task, rIdx));
       }
     }
   });
 }
+

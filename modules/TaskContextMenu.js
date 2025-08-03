@@ -5,7 +5,7 @@ import { render } from "./render.js";
 
 
 // Helper to create context menu for a task
-export function TaskContextMenu(rows, idx) {
+function TaskContextMenu(rows, idx) {
   const menu = document.createElement('div');
   menu.className = 'context-menu';
 
@@ -81,3 +81,5 @@ function DeleteTaskButton(rows, idx, contextMenu) {
   };
   return btn;
 }
+
+export default TaskContextMenu;
