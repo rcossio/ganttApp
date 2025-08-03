@@ -1,4 +1,4 @@
-import { openNamePopup } from "./popups.js";
+import { openNamePopup } from "./popupMenus.js";
 import { saveConfig } from './config.js';
 import state from "./state.js";
 import { render } from "./render.js";

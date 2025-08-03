@@ -1,7 +1,7 @@
 import state from './state.js';
 import { saveConfig } from './config.js';
 import { render } from './render.js';
-import { closePopups } from './popups.js';
+import { closePopups } from './popupMenus.js';
 
 export function AddGroupButton() {
   const button = document.createElement('button');

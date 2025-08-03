@@ -70,11 +70,15 @@ export function openColorPopup(task, anchor, onSave) {
   document.addEventListener('mousedown', onClickOutside);
 }
 
+export function openTeamMenu(anchor) {
 
-/**
- * Opens a popup showing the current team members (initials - email).
- */
-export function openTeamPopup(anchor) {
+  function renderTeamList(container) {
+    container.innerHTML = '';
+    state.team.forEach((member, idx) => {
+      container.append(TeamMemberRow(member));
+    });
+  }
+
   closePopups();
   const popup = document.createElement('div'); 
   popup.className = 'context-menu';
@@ -88,13 +92,13 @@ export function openTeamPopup(anchor) {
   headerRow.className = 'team-header-row';
   const header = document.createElement('strong'); 
   header.textContent = 'Team Members';
-  const addBtn = AddTeamMemberButton(content, () => renderTeamList(content, popup));
+  const addBtn = AddTeamMemberButton(content, () => renderTeamList(content));
   headerRow.append(header, addBtn);
 
   // Main content area for team list
   popup.append(headerRow);
   popup.append(content); 
-  renderTeamList(content, popup);
+  renderTeamList(content);
 
   // Add-member form
   document.body.append(popup);
@@ -109,11 +113,3 @@ export function openTeamPopup(anchor) {
   } 
   document.addEventListener('mousedown', onClickOutside);
 }
-
-function renderTeamList(container, popup) {
-  container.innerHTML = '';
-  state.team.forEach((member, idx) => {
-    container.append(TeamMemberRow(member, popup));
-  });
-}
-

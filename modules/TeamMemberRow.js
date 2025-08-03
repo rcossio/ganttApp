@@ -1,7 +1,7 @@
 import { RemoveMemberButton } from './specialButtons.js';
-import { positionPopup } from './popups.js';
+import { positionPopup } from './popupMenus.js';
 
-function TeamMemberRow(member, popup) {
+function TeamMemberRow(member) {
   const row = document.createElement('button');
   row.className = 'btn btn-sm popup-btn';
   row.textContent = `👤 ${member.initials} - ${member.email}`;
@@ -10,10 +10,6 @@ function TeamMemberRow(member, popup) {
   // Add right-click to remove member
   row.addEventListener('contextmenu', function(e) {
     e.preventDefault();
-    // Remove only other context menus, not the main team popup
-    document.querySelectorAll('.context-menu').forEach(p => {
-      if (p !== popup) p.remove();
-    });
     // Remove member context menu
     const menu = document.createElement('div');
     menu.className = 'context-menu';

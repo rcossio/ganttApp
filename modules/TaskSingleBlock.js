@@ -1,4 +1,4 @@
-import { closePopups, positionPopup } from './popups.js';
+import { closePopups, positionPopup } from './popupMenus.js';
 import { ClearButton } from './specialButtons.js';
 import { attachClickOutside } from './utils.js';
 import { saveConfig } from './config.js';

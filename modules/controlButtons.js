@@ -2,7 +2,7 @@ import { saveConfig, downloadConfig, handleUpload } from './config.js';
 import { render } from './render.js';
 import state from './state.js';
 import { scrollToToday } from './utils.js';
-import { openTeamPopup } from './popups.js';
+import { openTeamMenu } from './popupMenus.js';
 
 export function ZoomInButton() {
   //    <button id="zoomIn"  class="btn btn-secondary">+</button>
@@ -83,7 +83,7 @@ export function ManageTeamButton() {
   btn.id = 'manageTeam';
   btn.className = 'btn btn-secondary';
   btn.textContent = 'Manage Team';
-  btn.onclick = () => openTeamPopup(btn);
+  btn.onclick = () => openTeamMenu(btn);
   return btn;
 }
 
