@@ -133,6 +133,11 @@ export function enableCtrlWheelZoom() {
   window.addEventListener('wheel', function(e) {
     if (e.ctrlKey) {
       e.preventDefault();
+      const timeline = document.getElementById('timelineContainer');
+      const prevScrollLeft = timeline.scrollLeft;
+      const prevDayWidth = state.baseDayWidth * state.zoomLevel;
+      // Store precise offset in state
+      state.scrollOffsetDays = prevScrollLeft / prevDayWidth;
       if (e.deltaY < 0) {
         // Zoom in
         state.zoomLevel = Math.min(state.zoomLevel * 1.05737126344, 5.0); //sqrt(sqrt(1.25))
@@ -140,10 +145,14 @@ export function enableCtrlWheelZoom() {
         // Zoom out
         state.zoomLevel = Math.max(state.zoomLevel / 1.05737126344, 0.1); //sqrt(sqrt(1.25))
       }
-      import('./render.js').then(({ render }) => {
-        saveConfig();
-        render();
-      });
+      saveConfig();
+      render();
+      // Restore scroll position after render
+      const timelineAfter = document.getElementById('timelineContainer');
+      if (timelineAfter) {
+        const newDayWidth = state.baseDayWidth * state.zoomLevel;
+        timelineAfter.scrollLeft = state.scrollOffsetDays * newDayWidth;
+      }
     }
   }, { passive: false });
 }

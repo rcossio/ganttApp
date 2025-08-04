@@ -5,7 +5,8 @@ const state = {
   zoomLevel: 1,
   showWeekends: true,
   days: [],
-  team: []
+  team: [],
+  scrollOffsetDays: 0 // Store scroll offset in day units
 };
 
 export default state;

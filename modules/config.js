@@ -1,4 +1,6 @@
 import state from './state.js';
+import { render } from './render.js';
+import { scrollToToday } from './utils.js';
 
 export function saveConfig() {
   localStorage.setItem('tasksConfig', JSON.stringify(state));
@@ -28,15 +30,20 @@ export function downloadConfig() {
   URL.revokeObjectURL(a.href)
 }
 
-export function handleUpload(file, onLoad) {
+export function handleUpload(file) {
   const reader = new FileReader()
   reader.onload = () => {
     try {
       const config = JSON.parse(reader.result)
+      // Fix: convert days array to Date objects if present
+      if (Array.isArray(config.days)) {
+        config.days = config.days.map(d => new Date(d));
+      }
       Object.assign(state, config);
       saveConfig();
-      onLoad(config)
-    } catch {
+      render();
+      scrollToToday();
+    } catch (err) {
       alert('Invalid JSON')
     }
   }

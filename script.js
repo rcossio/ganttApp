@@ -2,7 +2,7 @@ import { loadConfig, saveConfig } from './modules/config.js';
 import { initResizer, scrollToToday, generateDays, synchronizeVerticalScroll, enableCtrlWheelZoom, enableDragToScroll } from './modules/utils.js';
 import { render } from './modules/render.js';
 import state from './modules/state.js';
-import { ZoomInButton, ZoomOutButton, DownloadConfigButton, UploadConfigButton, ManageTeamButton } from './modules/controlButtons.js';
+import { ZoomInButton, ZoomOutButton, DownloadConfigButton, UploadConfigButton, ManageTeamButton, WeekendToggleButton } from './modules/controlButtons.js';
 
 // Init
 function init() {
@@ -26,6 +26,7 @@ function init() {
   controls.appendChild(DownloadConfigButton());
   controls.appendChild(UploadConfigButton());
   controls.appendChild(ManageTeamButton());
+  controls.appendChild(WeekendToggleButton());
 
   // Initialize drag-and-drop resizing 
   initResizer();

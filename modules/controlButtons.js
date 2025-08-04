@@ -5,29 +5,49 @@ import { scrollToToday } from './utils.js';
 import { openTeamMenu } from './popupMenus.js';
 
 export function ZoomInButton() {
-  //    <button id="zoomIn"  class="btn btn-secondary">+</button>
   const zoomInButton = document.createElement('button');
   zoomInButton.id = 'zoomIn';
   zoomInButton.className = 'btn btn-secondary';
   zoomInButton.textContent = '+';
   zoomInButton.onclick = () => {
+    const timeline = document.getElementById('timelineContainer');
+    const prevScrollLeft = timeline.scrollLeft;
+    const prevDayWidth = state.baseDayWidth * state.zoomLevel;
+    // Store precise offset in state
+    state.scrollOffsetDays = prevScrollLeft / prevDayWidth;
     state.zoomLevel = Math.min(state.zoomLevel * 1.25, 5.0);
     saveConfig();
     render();
+    // Restore scroll position after render
+    const timelineAfter = document.getElementById('timelineContainer');
+    if (timelineAfter) {
+      const newDayWidth = state.baseDayWidth * state.zoomLevel;
+      timelineAfter.scrollLeft = state.scrollOffsetDays * newDayWidth;
+    }
   };
   return zoomInButton;
 }
 
 export function ZoomOutButton() {
-  //    <button id="zoomOut" class="btn btn-secondary">-</button
   const zoomOutButton = document.createElement('button');
   zoomOutButton.id = 'zoomOut';
   zoomOutButton.className = 'btn btn-secondary';
   zoomOutButton.textContent = '-';
   zoomOutButton.onclick = () => {
+    const timeline = document.getElementById('timelineContainer');
+    const prevScrollLeft = timeline.scrollLeft;
+    const prevDayWidth = state.baseDayWidth * state.zoomLevel;
+    // Store precise offset in state
+    state.scrollOffsetDays = prevScrollLeft / prevDayWidth;
     state.zoomLevel = Math.max(state.zoomLevel / 1.25, 0.1);
     saveConfig();
     render();
+    // Restore scroll position after render
+    const timelineAfter = document.getElementById('timelineContainer');
+    if (timelineAfter) {
+      const newDayWidth = state.baseDayWidth * state.zoomLevel;
+      timelineAfter.scrollLeft = state.scrollOffsetDays * newDayWidth;
+    }
   };
   return zoomOutButton;
 }
@@ -57,15 +77,8 @@ export function UploadConfigButton() {
     loadInput.click();
   };
   loadInput.onchange = e => {
-    handleUpload(e.target.files[0], newConfig => {
-      state.groups = newConfig.groups;
-      state.zoomLevel = newConfig.zoomLevel;
-      state.team = newConfig.team;
-      saveConfig();
-      render();
-      scrollToToday();
-      e.target.value = '';
-    });
+    handleUpload(e.target.files[0]);
+    e.target.value = '';
   };
   const fragment = document.createDocumentFragment();
   fragment.appendChild(uploadConfigButton);

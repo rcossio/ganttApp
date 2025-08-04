@@ -6,19 +6,13 @@ import { AddGroupButton } from './specialButtons.js';
 import TaskBlock from './TaskBlock.js';
 import TaskContextMenu from './TaskContextMenu.js';
 import TimelineCell from './TimelineCell.js';
+import { WeekendToggleButton } from './controlButtons.js';
 
 const ZOOM_DAY_TEXT_THRESHOLD = 0.45;
 
 // Main render
-export async function render() {
+export function render() {
   const rows = flattenRows();
-
-  // Add Weekend toggle button to controls
-  const controls = document.getElementById('controls');
-  if (!document.getElementById('toggleWeekends')) {
-    const { WeekendToggleButton } = await import('./controlButtons.js');
-    controls.appendChild(WeekendToggleButton());
-  }
 
   renderTaskColumn(rows);
   renderTimeline(rows);

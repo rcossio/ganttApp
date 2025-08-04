@@ -8,8 +8,6 @@ I made this because Click*p charges 7 USD if you see your tasks in a Gantt chart
 ## Next steps
 - Fix: the app is getting slow, probably because it calculates to many stuff on the fly
 - Fix: When hiding weekends, a task that starts or ends on a weekend is not displayed correctly
-- Fix: Upload config is broken, probably because of the new date format
-- Fix: scroll to date after first rendering (it is there but doesnt work)
 
 - Feat: Add an assigned person per task.
 - Feat: dragging groups and task to reorder them 
