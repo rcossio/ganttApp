@@ -1,4 +1,6 @@
 import state from './state.js';
+import { saveConfig } from './config.js';
+import { render } from './render.js';
 
 // Date related functions
 export function generateDays() {
@@ -124,4 +126,59 @@ export function attachOnClickOutside(element, extraCondition) {
   setTimeout(() => {
     document.addEventListener('mousedown', handler);
   }, 0);
+}
+
+// Utility: Enable zoom in/out with Ctrl + scroll wheel
+export function enableCtrlWheelZoom() {
+  window.addEventListener('wheel', function(e) {
+    if (e.ctrlKey) {
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        // Zoom in
+        state.zoomLevel = Math.min(state.zoomLevel * 1.05737126344, 5.0); //sqrt(sqrt(1.25))
+      } else if (e.deltaY > 0) {
+        // Zoom out
+        state.zoomLevel = Math.max(state.zoomLevel / 1.05737126344, 0.1); //sqrt(sqrt(1.25))
+      }
+      import('./render.js').then(({ render }) => {
+        saveConfig();
+        render();
+      });
+    }
+  }, { passive: false });
+}
+
+// Utility: Enable drag-to-scroll for an element
+export function enableDragToScroll(element) {
+  let isDragging = false;
+  let startX, startY, scrollLeft, scrollTop;
+
+  element.addEventListener('mousedown', function(e) {
+    // Only drag if not clicking on a child element (like grid)
+    if (e.target !== element) {
+      return;
+    }
+    isDragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    scrollLeft = element.scrollLeft;
+    scrollTop = element.scrollTop;
+    element.style.cursor = 'grab';
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    const dx = startX - e.clientX;
+    const dy = startY - e.clientY;
+    element.scrollLeft = scrollLeft + dx;
+    element.scrollTop = scrollTop + dy;
+  });
+
+  window.addEventListener('mouseup', function() {
+    if (isDragging) {
+      isDragging = false;
+      element.style.cursor = '';
+    }
+  });
 }

@@ -14,7 +14,6 @@ export function ZoomInButton() {
     state.zoomLevel = Math.min(state.zoomLevel * 1.25, 5.0);
     saveConfig();
     render();
-    scrollToToday();
   };
   return zoomInButton;
 }
@@ -29,7 +28,6 @@ export function ZoomOutButton() {
     state.zoomLevel = Math.max(state.zoomLevel / 1.25, 0.1);
     saveConfig();
     render();
-    scrollToToday();
   };
   return zoomOutButton;
 }

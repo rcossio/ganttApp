@@ -106,10 +106,14 @@ body {
   cursor: pointer;
   color: #fff;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: center; /* center was before*/
+  justify-content: flex-start; /* align text to the left */
   user-select: none;
   font-weight: 500;
+  white-space: nowrap; /* prevent wrapping */
+  overflow: hidden;    /* hide overflowed text */
+  text-overflow: ellipsis; /* show ellipsis for overflowed text */
+  padding-left: 8px;   /* add some left padding for readability */
 }
 .handle {
   position: absolute;

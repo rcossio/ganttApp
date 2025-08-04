@@ -1,5 +1,5 @@
 import { loadConfig, saveConfig } from './modules/config.js';
-import { initResizer, scrollToToday, flattenRows, dayWidth, generateDays, synchronizeVerticalScroll} from './modules/utils.js';
+import { initResizer, scrollToToday, generateDays, synchronizeVerticalScroll, enableCtrlWheelZoom, enableDragToScroll } from './modules/utils.js';
 import { render } from './modules/render.js';
 import state from './modules/state.js';
 import { ZoomInButton, ZoomOutButton, DownloadConfigButton, UploadConfigButton, ManageTeamButton } from './modules/controlButtons.js';
@@ -33,6 +33,11 @@ function init() {
   // Synchronize vertical scroll between task column and timeline
   synchronizeVerticalScroll();
 
+  // Enable zoom in/out with Ctrl + scroll wheel
+  enableCtrlWheelZoom();
+
+  // Enable drag-to-scroll for timelineContainer (excluding grid)
+  enableDragToScroll(document.getElementById('timelineContainer'));
 }
 
 window.onload = init;
