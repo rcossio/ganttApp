@@ -6,9 +6,22 @@ import { render } from './render.js';
 function TaskBlock(task, rIdx, days, dw) {
   const b = document.createElement('div');
   b.className = 'task-block';
-  // Map dates to indices
-  const startIdx = days.findIndex(d => d.toISOString().slice(0, 10) === task.startDate);
-  const endIdx = days.findIndex(d => d.toISOString().slice(0, 10) === task.endDate);
+  // Map dates to indices in filtered days array
+  let startIdx = days.findIndex(d => d.toISOString().slice(0, 10) === task.startDate);
+  let endIdx = days.findIndex(d => d.toISOString().slice(0, 10) === task.endDate);
+
+  // If startIdx not found (weekend hidden), use next available day
+  if (startIdx === -1) {
+    startIdx = days.findIndex(d => d.toISOString().slice(0, 10) > task.startDate);
+    if (startIdx === -1) startIdx = 0;
+  }
+  // If endIdx not found (weekend hidden), use previous available day
+  if (endIdx === -1) {
+    endIdx = days.slice().reverse().findIndex(d => d.toISOString().slice(0, 10) < task.endDate);
+    if (endIdx !== -1) endIdx = days.length - 1 - endIdx;
+    else endIdx = days.length - 1;
+  }
+
   b.style.top        = `${40 * (rIdx + 2) + 5}px`;
   b.style.left       = `${dw * startIdx}px`;
   b.style.width      = `${dw * (endIdx - startIdx + 1)}px`;
